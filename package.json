@@ -1,0 +1,35 @@
+{
+  "name": "simple-git",
+  "version": "0.1.0",
+  "description": "Simple git interface for NodeJS",
+  "main": "lib/simple-git.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tuvistavie/node-simple-git.git"
+  },
+  "keywords": [
+    "git"
+  ],
+  "author": "Daniel Perez",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tuvistavie/node-simple-git/issues"
+  },
+  "homepage": "https://github.com/tuvistavie/node-simple-git",
+  "devDependencies": {
+    "coffee-script": "^1.7.1",
+    "expect.js": "^0.3.1",
+    "grunt": "^0.4.4",
+    "grunt-contrib-coffee": "^0.10.1",
+    "grunt-contrib-watch": "^0.6.1",
+    "grunt-exec": "^0.4.5",
+    "grunt-mocha-test": "^0.10.2",
+    "mocha": "^1.20.0"
+  },
+  "dependencies": {
+    "string": "^1.8.1"
+  }
+}
