@@ -8,7 +8,6 @@ class BadRepositoryError extends GitError
     @name = "BadRepositoryError"
     super @message
 
-
 module.exports =
   GitError: GitError
   BadRepositoryError: BadRepositoryError
