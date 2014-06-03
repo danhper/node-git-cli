@@ -30,4 +30,6 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-contrib-coffee'
   grunt.loadNpmTasks 'grunt-mocha-test'
 
-  grunt.registerTask 'default', ['coffee:dist', 'mochaTest:test', 'watch']
+  grunt.registerTask 'test', ['coffee:dist', 'mochaTest:test']
+
+  grunt.registerTask 'default', ['test', 'watch']

@@ -23,8 +23,10 @@ describe 'Repository', ->
 
   describe 'clone', ->
     it 'should clone repository to given directory', (done) ->
-      Repository.clone 'https://github.com/tuvistavie/node-simple-git', '/home/daniel/tmp/node-simple-git', {
+      Repository.clone 'https://github.com/tuvistavie/node-simple-git', '/tmp/node-simple-git', {
         onError: (error) ->
           expect(error).to.not.be null
+          done()
+        onSuccess: (repository) ->
           done()
       }
