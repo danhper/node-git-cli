@@ -1,9 +1,9 @@
 expect = require 'expect.js'
 tmp    = require 'tmp'
 
-simpleGit  = require('../lib/simple-git')
-Repository = require('../lib/repository')
-CliOption  = require('../lib/cli-option')
+simpleGit  = require('../src/simple-git')
+Repository = require('../src/repository')
+CliOption  = require('../src/cli-option')
 
 describe 'Repository', ->
   describe 'constructor', ->

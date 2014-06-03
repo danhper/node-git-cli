@@ -1,7 +1,7 @@
 expect = require 'expect.js'
 
-CliOption  = require('../lib/cli-option')
-CliCommand = require('../lib/cli-command')
+CliOption  = require('../src/cli-option')
+CliCommand = require('../src/cli-command')
 
 describe 'CliCommand', ->
   describe 'constructor', ->

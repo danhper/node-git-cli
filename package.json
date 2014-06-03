@@ -36,7 +36,9 @@
   },
   "config": {
     "blanket": {
-      "pattern": "lib"
+      "pattern": "src",
+      "loader": "./node-loaders/coffee-script",
+      "data-cover-never": "node_modules"
     }
   }
 }

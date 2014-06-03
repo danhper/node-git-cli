@@ -21,7 +21,7 @@ module.exports = (grunt) ->
 
     mochacov:
       options:
-        require: 'coffee-script/register'
+        compilers: ['coffee:coffee-script/register']
         files: ['test/*.coffee']
       coverage:
         options:
