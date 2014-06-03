@@ -25,7 +25,7 @@ describe 'Repository', ->
   describe 'clone', ->
     it 'should clone repository to given directory', (done) ->
       @timeout(10000)
-      tmp.dir { unsafeClean: true }, (err, path) ->
+      tmp.dir { unsafeCleanup: true }, (err, path) ->
         Repository.clone 'https://github.com/tuvistavie/node-simple-git', "#{path}/node-simple-git",
           onSuccess: (repository) ->
             expect(repository.path).to.eql "#{path}/node-simple-git/.git"

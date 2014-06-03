@@ -8,7 +8,7 @@ module.exports = (grunt) ->
         tasks: ['test']
       test:
         files: 'test/*.coffee'
-        tasks: ['mochacov:test']
+        tasks: ['test']
 
     coffee:
       dist:
@@ -35,7 +35,8 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-contrib-coffee'
   grunt.loadNpmTasks 'grunt-mocha-cov'
 
-  grunt.registerTask 'test', ['coffee:dist', 'mochacov:test']
-  grunt.registerTask 'coverage', ['coffee:dist', 'mochacov:coverage']
+  grunt.registerTask 'test', ['mochacov:test']
+  grunt.registerTask 'coverage', ['mochacov:coverage']
+  grunt.registerTask 'build', ['coffee:dist']
 
   grunt.registerTask 'default', ['test', 'watch']

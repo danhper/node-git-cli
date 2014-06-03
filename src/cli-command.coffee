@@ -20,7 +20,7 @@ class CliCommand
 
   _initOption: (option) ->
     Util.checkArgs option, [Array, CliOption]
-    return option if Util.isSameType(option, CliOption)
+    return option if Util.hasType(option, CliOption)
     if option.length != 2
       throw new TypeError("options object should be a single key/value pair")
     if _.isUndefined(option[1]) || option[1] == ''
