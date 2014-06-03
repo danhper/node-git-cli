@@ -1,7 +1,8 @@
 expect = require 'expect.js'
 
-simpleGit = require('../lib/simple-git')
-Repository = simpleGit.Repository
+simpleGit  = require('../lib/simple-git')
+Repository = require('../lib/repository')
+CliOption  = require('../lib/cli-option')
 
 describe 'Repository', ->
   describe 'constructor', ->
@@ -19,3 +20,11 @@ describe 'Repository', ->
     it 'should return the repository working directory', ->
       repository = new Repository('/path/to/.git')
       expect(repository.workingDir()).to.be '/path/to'
+
+  describe 'clone', ->
+    it 'should clone repository to given directory', (done) ->
+      Repository.clone 'https://github.com/tuvistavie/node-simple-git', '/home/daniel/tmp/node-simple-git', {
+        onError: (error) ->
+          expect(error).to.not.be null
+          done()
+      }

@@ -1,7 +1,9 @@
 S      = require 'string'
 path   = require 'path'
 
-errors = require './errors'
+errors      = require './errors'
+CliCommand  = require './cli-command'
+Runner      = require './runner'
 
 
 class Repository
@@ -11,11 +13,9 @@ class Repository
     unless S(@path).endsWith('.git')
       throw new errors.BadRepositoryError(BAD_PATH_MSG)
 
-  @clone: (url, path, onSuccess, onError) ->
-    command = "clone #{url} #{path}"
-    Git.execute command,
-      onSuccess: onSuccess
-      onError: onError
+  @clone: (url, path, options={}) ->
+    command = new CliCommand('git', ['clone', url, path], options.cli)
+    Runner.execute command, options
 
   workingDir: -> path.dirname @path
 
