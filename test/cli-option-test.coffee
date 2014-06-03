@@ -3,6 +3,26 @@ expect = require 'expect.js'
 CliOption = require('../lib/cli-option')
 
 describe 'CliOption', ->
+  describe 'constructor', ->
+    it 'should work without arguments', ->
+      option = new CliOption('a')
+      expect(option.hasArgs).to.be false
+
+    it 'should work with arguments as object', ->
+      option = new CliOption({a: '123'})
+      expect(option.hasArgs).to.be true
+      expect(option.args).to.eql ['123']
+
+    it 'should work with arguments as array', ->
+      option = new CliOption(['a', '123'])
+      expect(option.hasArgs).to.be true
+      expect(option.args).to.eql ['123']
+
+    it 'should work with second argument', ->
+      option = new CliOption('a', '123')
+      expect(option.hasArgs).to.be true
+      expect(option.args).to.eql ['123']
+
   describe '#toString', ->
     it 'should format short options wihout args', ->
       result = new CliOption('a').toString()

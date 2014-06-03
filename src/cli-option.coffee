@@ -5,7 +5,7 @@ Util = require './util'
 class CliOption
   constructor: (option, args) ->
     Util.checkArgs option, [Array, String, Object]
-    if _.isUndefined args && _.isString option
+    if _.isUndefined(args) && _.isString(option)
       @option = option
       @hasArgs = false
     else
@@ -13,7 +13,8 @@ class CliOption
 
   _initWithArguments: (option, args) ->
     if _.isUndefined args
-      option = _.pairs option if _.isObject option
+      Util.checkArgs option, [Array, Object]
+      option =  if _.isArray(option) then [option] else _.pairs(option)
       if option.length != 1
         throw new TypeError("options object should be a single key/value pair")
       [@option, @args] = option[0]
