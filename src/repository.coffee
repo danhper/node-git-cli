@@ -15,6 +15,11 @@ class Repository
 
   @clone: (url, path, options={}) ->
     command = new CliCommand('git', ['clone', url, path], options.cli)
+    if options.onSuccess
+      success = options.onSuccess
+      options.onSuccess = ->
+        repository = new Repository("#{path}/.git")
+        success repository
     Runner.execute command, options
 
   workingDir: -> path.dirname @path
