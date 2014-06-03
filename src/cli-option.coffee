@@ -20,7 +20,7 @@ class CliOption
       [@option, @args] = option[0]
     else
       [@option, @args] = [option, args]
-    Util.checkArgs @args, [Array, String]
+    Util.checkArgs @args, [Array, String, Number]
     @args = [@args] unless _.isArray @args
 
     @hasArgs = true
