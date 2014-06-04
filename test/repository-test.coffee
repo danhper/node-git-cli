@@ -22,6 +22,12 @@ describe 'Repository', ->
       repository = new Repository('/path/to/.git')
       expect(repository.workingDir()).to.be '/path/to'
 
+  describe 'createOptions', ->
+    it 'should extend options with "cwd"', ->
+      repository = new Repository('/path/to/.git')
+      options = { foo: 'bar' }
+      expect(repository._createOptions(options)).to.eql { cwd: '/path/to', foo: 'bar' }
+
   describe 'clone', ->
     it 'should clone repository to given directory', (done) ->
       @timeout(10000)

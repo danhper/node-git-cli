@@ -1,10 +1,11 @@
 S      = require 'string'
+_      = require 'underscore'
 path   = require 'path'
 
 errors      = require './errors'
 CliCommand  = require './cli-command'
 Runner      = require './runner'
-
+Util        = require './util'
 
 class Repository
   BAD_PATH_MSG = "repository path should point .git directory"
@@ -22,7 +23,18 @@ class Repository
         success repository
     Runner.execute command, options
 
+  add: (files=['.'], options={}) ->
+    args = ['add']
+    Array.prototype.push.apply(args, files)
+    command = new CliCommand('git', args, options.cli)
+    Runner.execute command, @_createOptions(options)
+
   workingDir: -> path.dirname @path
+
+  _createOptions: (base={}) ->
+    _.extend {
+      cwd: @workingDir()
+    }, base
 
 
 module.exports = Repository
