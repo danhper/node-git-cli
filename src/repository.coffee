@@ -6,6 +6,7 @@ errors      = require './errors'
 CliCommand  = require './cli-command'
 Runner      = require './runner'
 Util        = require './util'
+GitUtil     = require './git-util'
 
 class Repository
   BAD_PATH_MSG = "repository path should point .git directory"
@@ -27,6 +28,15 @@ class Repository
     args = ['add']
     Array.prototype.push.apply(args, files)
     command = new CliCommand('git', args, options.cli)
+    Runner.execute command, @_createOptions(options)
+
+  status: (options={}) ->
+    command = new CliCommand('git', 'status', [new CliOption('s')])
+    if options.onSuccess
+      success = options.onSuccess
+      options.onSuccess = (stdout, stderr) ->
+        statusInfo = GitUtil.parseStatus(stdout)
+        success statusInfo
     Runner.execute command, @_createOptions(options)
 
   workingDir: -> path.dirname @path
