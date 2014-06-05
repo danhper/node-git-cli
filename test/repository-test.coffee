@@ -1,15 +1,31 @@
+process.env['TMPDIR'] = '/tmp/node-simple-git'
+
+_      = require 'underscore'
 expect = require 'expect.js'
 tmp    = require 'tmp'
-fs     = require 'fs'
+fs     = require 'fs-extra'
 
 simpleGit  = require('../src/simple-git')
 Repository = require('../src/repository')
 CliOption  = require('../src/cli-option')
 
+
+testRepository = null
+
+before (done) ->
+  if fs.existsSync(process.env['TMPDIR'])
+    fs.removeSync(process.env['TMPDIR'])
+  fs.mkdirSync(process.env['TMPDIR'])
+  tmp.dir (err, path) ->
+    Repository.clone 'https://github.com/tuvistavie/node-simple-git', "#{path}/node-simple-git",
+      onSuccess: (repository) ->
+        testRepository = repository
+        done()
+
+after ->
+  fs.removeSync(process.env['TMPDIR'])
+
 describe 'Repository', ->
-  before ->
-    tmp.dir (err, path) ->
-      Repository.clone 'https://github.com/tuvistavie/node-simple-git', "#{path}/node-simple-git",
 
   describe 'constructor', ->
     it 'should throw error on wrong path', ->
@@ -35,31 +51,24 @@ describe 'Repository', ->
 
   describe 'clone', ->
     it 'should clone repository to given directory', (done) ->
-      @timeout(10000)
       tmp.dir { unsafeCleanup: true }, (err, path) ->
-        Repository.clone 'https://github.com/tuvistavie/node-simple-git', "#{path}/node-simple-git",
+        Repository.clone testRepository.path, "#{path}/node-simple-git",
           onSuccess: (repository) ->
             expect(repository.path).to.eql "#{path}/node-simple-git/.git"
-            Repository.clone 'https://github.com/tuvistavie/node-simple-git', "#{path}/node-simple-git",
+            Repository.clone testRepository.path, "#{path}/node-simple-git",
               onError: (error) ->
                 expect(error).to.not.be null
                 done()
 
   describe '#add', ->
     it 'should add given files', (done) ->
-      @timeout(10000)
-      tmp.dir { unsafeCleanup: true }, (err, path) ->
-        Repository.clone 'https://github.com/tuvistavie/node-simple-git', "#{path}/node-simple-git",
-          onSuccess: (repository) ->
-            done()
+      done()
 
   describe '#status', ->
     it 'get file status', (done) ->
-      @timeout(10000)
-      tmp.dir { unsafeCleanup: true }, (err, path) ->
-        Repository.clone 'https://github.com/tuvistavie/node-simple-git', "#{path}/node-simple-git",
-          onSuccess: (repository) ->
-            repository.status()
-            done()
-
-  inRepo = (f) ->
+      fs.openSync("#{testRepository.workingDir()}/foo", 'w')
+      testRepository.status
+        onSuccess: (changes) ->
+          _.each ['addedFiles', 'editedFiles', 'removedFiles', 'untrackedFiles'], (fileType) ->
+            expect(changes[fileType]).to.be.an Array
+          done()

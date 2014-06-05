@@ -4,6 +4,7 @@ path   = require 'path'
 
 errors      = require './errors'
 CliCommand  = require './cli-command'
+CliOption   = require './cli-option'
 Runner      = require './runner'
 Util        = require './util'
 GitUtil     = require './git-util'
@@ -42,9 +43,9 @@ class Repository
   workingDir: -> path.dirname @path
 
   _createOptions: (base={}) ->
-    _.extend {
+    _.extend
       cwd: @workingDir()
-    }, base
+    , base
 
 
 module.exports = Repository
