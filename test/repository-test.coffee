@@ -79,9 +79,9 @@ describe 'Repository', ->
         onSuccess: (changes) ->
           expect(changes).to.be.an Array
           expect(changes.length).to.be 2
-          _.each { path: 'README.md', fullPath: editedFilePath, status: 'edited', tracked: false }, (v, k) ->
+          _.each { path: 'README.md', fullPath: editedFilePath, status: 'modified', tracked: false }, (v, k) ->
             expect(changes[0][k]).to.be v
-          _.each { path: 'foo', fullPath: addedFilePath, status: 'untracked', tracked: false }, (v, k) ->
+          _.each { path: 'foo', fullPath: addedFilePath, status: 'added', tracked: false }, (v, k) ->
             expect(changes[1][k]).to.be v
           done()
 
