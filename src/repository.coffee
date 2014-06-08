@@ -25,7 +25,8 @@ class Repository
         success repository
     Runner.execute command, options
 
-  add: (files=['.'], options={}) ->
+  add: (files, options) ->
+    [options, files] = [files, ['.']] unless options? && _.isArray(files)
     args = ['add']
     Array.prototype.push.apply(args, files)
     command = new CliCommand('git', args, options.cli)

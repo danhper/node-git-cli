@@ -13,7 +13,7 @@ CliOption  = require('../src/cli-option')
 BASE_REPO_PATH = '/home/daniel/Documents/projects/node-simple-git'
 
 
-testRepository = null
+[baseRepository, testRepository]  = [null, null]
 
 before (done) ->
   if fs.existsSync(process.env['TMPDIR'])
@@ -22,13 +22,19 @@ before (done) ->
   tmp.dir (err, path) ->
     Repository.clone BASE_REPO_PATH, "#{path}/node-simple-git",
       onSuccess: (repository) ->
-        testRepository = repository
+        baseRepository = repository
         done()
 
 after ->
   fs.removeSync(process.env['TMPDIR'])
 
 describe 'Repository', ->
+  beforeEach (done) ->
+    tmp.dir (err, path) ->
+      Repository.clone baseRepository.path, "#{path}/node-simple-git",
+        onSuccess: (repository) ->
+          testRepository = repository
+          done()
 
   describe 'constructor', ->
     it 'should throw error on wrong path', ->
@@ -63,10 +69,6 @@ describe 'Repository', ->
                 expect(error).to.not.be null
                 done()
 
-  describe '#add', ->
-    it 'should add given files', (done) ->
-      done()
-
   describe '#status', ->
     it 'get file status', (done) ->
       addedFilePath = "#{testRepository.workingDir()}/foo"
@@ -77,8 +79,34 @@ describe 'Repository', ->
         onSuccess: (changes) ->
           expect(changes).to.be.an Array
           expect(changes.length).to.be 2
-          _.each { path: 'foo', fullPath: addedFilePath, status: 'untracked', tracked: false }, (v, k) ->
-            expect(changes[1][k]).to.be v
           _.each { path: 'README.md', fullPath: editedFilePath, status: 'edited', tracked: false }, (v, k) ->
             expect(changes[0][k]).to.be v
+          _.each { path: 'foo', fullPath: addedFilePath, status: 'untracked', tracked: false }, (v, k) ->
+            expect(changes[1][k]).to.be v
           done()
+
+  describe '#add', ->
+    it 'should add all files by default', (done) ->
+      fs.openSync("#{testRepository.workingDir()}/foo", 'w')
+      fs.appendFileSync("#{testRepository.workingDir()}/README.md", 'foobar')
+      testRepository.add
+        onSuccess: ->
+          testRepository.status
+            onSuccess: (changes) ->
+              expect(changes.length).to.be 2
+              _.each changes, (change) ->
+                expect(change.tracked).to.be true
+              done()
+
+    it 'shoud add given files otherwise', (done) ->
+      addedFilePath = "#{testRepository.workingDir()}/foo"
+      fs.openSync(addedFilePath, 'w')
+      fs.appendFileSync("#{testRepository.workingDir()}/README.md", 'foobar')
+      testRepository.add [addedFilePath],
+        onSuccess: ->
+          testRepository.status
+            onSuccess: (changes) ->
+              expect(changes.length).to.be 2
+              expect(changes[0].tracked).to.be false
+              expect(changes[1].tracked).to.be true
+              done()
