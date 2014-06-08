@@ -35,8 +35,9 @@ class Repository
     command = new CliCommand('git', 'status', [new CliOption('s')])
     if options.onSuccess
       success = options.onSuccess
-      options.onSuccess = (stdout, stderr) ->
+      options.onSuccess = (stdout, stderr) =>
         statusInfo = GitUtil.parseStatus(stdout)
+        _.each(statusInfo, (f) => f.fullPath = "#{@workingDir()}/#{f.path}")
         success statusInfo
     Runner.execute command, @_createOptions(options)
 

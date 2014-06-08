@@ -9,6 +9,9 @@ simpleGit  = require('../src/simple-git')
 Repository = require('../src/repository')
 CliOption  = require('../src/cli-option')
 
+# BASE_REPO_PATH = 'https://github.com/tuvistavie/node-simple-git.git'
+BASE_REPO_PATH = '/home/daniel/Documents/projects/node-simple-git'
+
 
 testRepository = null
 
@@ -17,7 +20,7 @@ before (done) ->
     fs.removeSync(process.env['TMPDIR'])
   fs.mkdirSync(process.env['TMPDIR'])
   tmp.dir (err, path) ->
-    Repository.clone 'https://github.com/tuvistavie/node-simple-git', "#{path}/node-simple-git",
+    Repository.clone BASE_REPO_PATH, "#{path}/node-simple-git",
       onSuccess: (repository) ->
         testRepository = repository
         done()
@@ -66,9 +69,16 @@ describe 'Repository', ->
 
   describe '#status', ->
     it 'get file status', (done) ->
-      fs.openSync("#{testRepository.workingDir()}/foo", 'w')
+      addedFilePath = "#{testRepository.workingDir()}/foo"
+      editedFilePath = "#{testRepository.workingDir()}/README.md"
+      fs.openSync(addedFilePath, 'w')
+      fs.appendFileSync(editedFilePath, 'foobar')
       testRepository.status
         onSuccess: (changes) ->
-          _.each ['addedFiles', 'editedFiles', 'removedFiles', 'untrackedFiles'], (fileType) ->
-            expect(changes[fileType]).to.be.an Array
+          expect(changes).to.be.an Array
+          expect(changes.length).to.be 2
+          _.each { path: 'foo', fullPath: addedFilePath, status: 'untracked', tracked: false }, (v, k) ->
+            expect(changes[1][k]).to.be v
+          _.each { path: 'README.md', fullPath: editedFilePath, status: 'edited', tracked: false }, (v, k) ->
+            expect(changes[0][k]).to.be v
           done()

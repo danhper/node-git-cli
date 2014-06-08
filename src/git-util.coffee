@@ -2,13 +2,20 @@ GitUtil =
   parseStatus: (statusStr) ->
     files = []
 
-    for line in statusStr.trim().split('\n')
-      [type, file] = line.split(' ')
+    for line in statusStr.split('\n')
+      continue if line.trim() == ''
+      [type, path] = [line.substring(0, 2), line.substring(3)]
+      [type, tracked] = if type[0] == ' ' then [type[1], false] else [type[0], true]
       switch type
-        when '??' then status.untrackedFiles.push(file)
-        when 'M' then status.editedFiles.push(file)
-        when 'A' then status.addedFiles.push(file)
+        when '?' then [status, tracked] = ['untracked', false]
+        when 'M' then status = 'edited'
+        when 'A' then status = 'added'
+        when 'D' then status = 'removed'
+      files.push
+        path: path
+        status: status
+        tracked: tracked
 
-    status
+    files
 
 module.exports = GitUtil
