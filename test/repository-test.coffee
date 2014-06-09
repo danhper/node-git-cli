@@ -9,9 +9,9 @@ simpleGit  = require('../src/simple-git')
 Repository = require('../src/repository')
 CliOption  = require('../src/cli-option')
 
-# BASE_REPO_PATH = 'https://github.com/tuvistavie/node-simple-git.git'
 BASE_REPO_PATH = '/home/daniel/Documents/projects/node-simple-git'
-
+unless fs.existsSync BASE_REPO_PATH
+  BASE_REPO_PATH = 'https://github.com/tuvistavie/node-simple-git.git'
 
 [baseRepository, testRepository]  = [null, null]
 
