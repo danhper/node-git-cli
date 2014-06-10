@@ -22,3 +22,11 @@ describe 'GitUtil', ->
       _.each expected, (expectedChanges, index) ->
         _.each expectedChanges, (v, k) ->
           expect(changes[index][k]).to.be v
+
+  describe '#parseShortDiff', ->
+    s = ' 2 files changed, 1 insertion(+), 1 deletion(-)\n'
+    stats = GitUtil.parseShortDiff(s)
+    expect(stats).to.be.a Object
+    _.each { changedFilesNumber: 2, insertions: 1, deletions: 1}, (v, k) ->
+      expect(stats).to.have.key k
+      expect(stats[k]).to.be v

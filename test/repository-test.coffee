@@ -5,9 +5,10 @@ expect = require 'expect.js'
 tmp    = require 'tmp'
 fs     = require 'fs-extra'
 
-simpleGit  = require('../src/simple-git')
-Repository = require('../src/repository')
-CliOption  = require('../src/cli-option')
+Helpers    = require './test-helpers'
+simpleGit  = require '../src/simple-git'
+Repository = require '../src/repository'
+CliOption  = require '../src/cli-option'
 
 BASE_REPO_PATH = '/home/daniel/Documents/projects/node-simple-git'
 unless fs.existsSync BASE_REPO_PATH
@@ -110,3 +111,28 @@ describe 'Repository', ->
               expect(changes[0].tracked).to.be false
               expect(changes[1].tracked).to.be true
               done()
+
+  describe '#diff', ->
+    it 'should not return output when files are not changed', (done) ->
+      testRepository.diff
+        onSuccess: (output) ->
+          expect(output).to.be.empty()
+          done()
+
+    it 'should return output when files are changed', (done) ->
+      fs.appendFileSync("#{testRepository.workingDir()}/README.md", 'foobar')
+      testRepository.diff
+        onSuccess: (output) ->
+          expect(output).to.not.be.empty()
+          done()
+
+  describe '#diffStats', ->
+    it 'should return correct stats', (done) ->
+      fs.appendFileSync("#{testRepository.workingDir()}/README.md", 'foobar')
+      Helpers.removeFirstLine("#{testRepository.workingDir()}/LICENSE")
+      testRepository.diffStats
+        onSuccess: (stats) ->
+          expect(stats).to.be.a Object
+          _.each { changedFilesNumber: 2, insertions: 1, deletions: 1}, (v, k) ->
+            expect(stats[k]).to.be v
+          done()

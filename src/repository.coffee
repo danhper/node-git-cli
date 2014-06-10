@@ -33,7 +33,7 @@ class Repository
     Runner.execute command, @_createOptions(options)
 
   status: (options={}) ->
-    command = new CliCommand(['git', 'status'], [new CliOption('s')])
+    command = new CliCommand(['git', 'status'], _.extend({ s: '' }, options.cli))
     if options.onSuccess
       success = options.onSuccess
       options.onSuccess = (stdout, stderr) =>
@@ -43,12 +43,30 @@ class Repository
     Runner.execute command, @_createOptions(options)
 
   diff: (options={}) ->
+    args = @_getDiffArgs(options)
+    command = new CliCommand(['git', 'diff'], args, options.cli)
+    Runner.execute command, @_createOptions(options)
+
+  diffStats: (options={}) ->
+    args = @_getDiffArgs(options)
+    cliOpts = _.extend({ shortstat: '' }, options.cli)
+    command = new CliCommand(['git', 'diff'], args, cliOpts)
+    if options.onSuccess
+      success = options.onSuccess
+      options.onSuccess = (stdout, stderr) ->
+        stats = GitUtil.parseShortDiff(stdout)
+        success stats
+    Runner.execute command, @_createOptions(options)
+
+  _getDiffArgs: (options) ->
     args = []
     args.push options.source if options.source?
     args.push options.target if options.target?
     if options.path?
       args.push '--'
       Array.prototype.push.apply args, options.paths
+    args
+
 
 
   workingDir: -> path.dirname @path

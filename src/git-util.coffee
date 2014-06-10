@@ -1,5 +1,6 @@
-GitUtil =
+_ = require 'underscore'
 
+GitUtil =
   parseStatus: (statusStr) ->
     files = []
 
@@ -18,5 +19,22 @@ GitUtil =
         tracked: tracked
 
     files
+
+  parseShortDiff: (diffStr) ->
+    diffStr = diffStr.trim()
+    regexp = /(\d+) files changed, (?:(\d+) insertion\(\+\), )?(?:(\d+) deletion\(-\))/
+    result = regexp.exec diffStr
+
+    if result?
+      stats = _.map result[1..], (v) -> parseInt(v, 10)
+    else
+      stats = [0, 0, 0]
+
+    {
+      changedFilesNumber: stats[0]
+      insertions: stats[1]
+      deletions: stats[2]
+    }
+
 
 module.exports = GitUtil

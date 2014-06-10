@@ -32,7 +32,7 @@ class CliCommand
 
   toString: ->
     s = @command.join(' ')
-    s += ' ' + _.map(@options, (opt) -> opt.toString()).join(' ') if @options
+    s += ' ' + _.map(@options, (opt) -> opt.toString()).join(' ') if @options?
     s += ' ' + @args.join(' ') if @args?
     s.trim()
 
