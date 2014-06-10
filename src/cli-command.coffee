@@ -9,9 +9,11 @@ class CliCommand
       options = @args
       @args = undefined
 
-    Util.checkArgs @command, String
+    Util.checkArgs @command, [String, Array]
     Util.checkArgs @args, [String, Array] if @args?
     Util.checkArgs options, [Array, Object] if options?
+
+    @command = [@command] unless _.isArray(@command)
 
     @args = [@args] if _.isString(@args)
     if options?
@@ -29,9 +31,9 @@ class CliCommand
       new CliOption(option[0], option[1])
 
   toString: ->
-    s = @command + ' '
-    s += @args.join(' ') + ' ' if @args?
-    s += _.map(@options, (opt) -> opt.toString()).join(' ')
+    s = @command.join(' ')
+    s += ' ' + _.map(@options, (opt) -> opt.toString()).join(' ') if @options
+    s += ' ' + @args.join(' ') if @args?
     s.trim()
 
 

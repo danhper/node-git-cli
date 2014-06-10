@@ -17,7 +17,7 @@ class Repository
       throw new errors.BadRepositoryError(BAD_PATH_MSG)
 
   @clone: (url, path, options={}) ->
-    command = new CliCommand('git', ['clone', url, path], options.cli)
+    command = new CliCommand(['git', 'clone'], [url, path], options.cli)
     if options.onSuccess
       success = options.onSuccess
       options.onSuccess = ->
@@ -27,13 +27,13 @@ class Repository
 
   add: (files, options) ->
     [options, files] = [files, ['.']] unless options? && _.isArray(files)
-    args = ['add']
+    args = []
     Array.prototype.push.apply(args, files)
-    command = new CliCommand('git', args, options.cli)
+    command = new CliCommand(['git', 'add'], args, options.cli)
     Runner.execute command, @_createOptions(options)
 
   status: (options={}) ->
-    command = new CliCommand('git', 'status', [new CliOption('s')])
+    command = new CliCommand(['git', 'status'], [new CliOption('s')])
     if options.onSuccess
       success = options.onSuccess
       options.onSuccess = (stdout, stderr) =>
@@ -41,6 +41,15 @@ class Repository
         _.each(statusInfo, (f) => f.fullPath = "#{@workingDir()}/#{f.path}")
         success statusInfo
     Runner.execute command, @_createOptions(options)
+
+  diff: (options={}) ->
+    args = []
+    args.push options.source if options.source?
+    args.push options.target if options.target?
+    if options.path?
+      args.push '--'
+      Array.prototype.push.apply args, options.paths
+
 
   workingDir: -> path.dirname @path
 
