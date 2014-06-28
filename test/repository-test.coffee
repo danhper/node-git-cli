@@ -70,6 +70,14 @@ describe 'Repository', ->
                 expect(error).to.not.be null
                 done()
 
+  describe 'init', ->
+    it 'should init a new repository to given directory', (done) ->
+      tmp.dir { unsafeCleanup: true }, (err, path) ->
+        Repository.init "#{path}/node-simple-git",
+          onSuccess: (repository) ->
+            expect(repository.path).to.eql "#{path}/node-simple-git/.git"
+            done()
+
   describe '#status', ->
     it 'get file status', (done) ->
       addedFilePath = "#{testRepository.workingDir()}/foo"

@@ -1,3 +1,4 @@
+fs     = require 'fs-extra'
 S      = require 'string'
 _      = require 'underscore'
 path   = require 'path'
@@ -15,6 +16,16 @@ class Repository
   constructor: (@path) ->
     unless S(@path).endsWith('.git')
       throw new errors.BadRepositoryError(BAD_PATH_MSG)
+
+  @init: (path, options={}) ->
+    fs.ensureDirSync path
+    command = new CliCommand('git', ['init', path], options.cli)
+    if options.onSuccess
+      success = options.onSuccess
+      options.onSuccess = ->
+        repository = new Repository("#{path}/.git")
+        success repository
+    Runner.execute command, options
 
   @clone: (url, path, options={}) ->
     command = new CliCommand(['git', 'clone'], [url, path], options.cli)
