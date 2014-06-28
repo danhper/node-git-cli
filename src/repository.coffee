@@ -69,6 +69,17 @@ class Repository
         success stats
     Runner.execute command, @_createOptions(options)
 
+  log: (options={}) ->
+    format = '{"author": "%an", "email": "%ae", "date": "%cd", "subject": "%s", "body": "%b", "hash": "%H"},'
+    cliOpts = _.extend({ pretty: "format:#{format}" }, options.cli)
+    command = new CliCommand(['git', 'log'], cliOpts)
+    if options.onSuccess
+      success = options.onSuccess
+      options.onSuccess = (stdout, stderr) ->
+        logs = GitUtil.parseLog stdout
+        success logs
+    Runner.execute command, @_createOptions(options)
+
   _getDiffArgs: (options) ->
     args = []
     args.push options.source if options.source?
@@ -77,8 +88,6 @@ class Repository
       args.push '--'
       Array.prototype.push.apply args, options.paths
     args
-
-
 
   workingDir: -> path.dirname @path
 

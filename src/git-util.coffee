@@ -37,4 +37,9 @@ GitUtil =
     }
 
 
+  parseLog: (logStr) ->
+    logStr = '[' + logStr[0...-1] + ']'
+    JSON.parse logStr
+
+
 module.exports = GitUtil

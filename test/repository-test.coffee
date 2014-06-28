@@ -144,3 +144,13 @@ describe 'Repository', ->
           _.each { changedFilesNumber: 2, insertions: 1, deletions: 1}, (v, k) ->
             expect(stats[k]).to.be v
           done()
+
+  describe '#log', ->
+    it 'should return logs', (done) ->
+      testRepository.log
+        onSuccess: (logs) ->
+          expect(logs).to.be.an Array
+          expect(logs).to.not.be.empty()
+          keys = ['author', 'email', 'subject', 'body', 'date', 'hash']
+          expect(logs[0]).to.only.have.keys keys
+          done()
