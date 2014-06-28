@@ -153,4 +153,5 @@ describe 'Repository', ->
           expect(logs).to.not.be.empty()
           keys = ['author', 'email', 'subject', 'body', 'date', 'hash']
           expect(logs[0]).to.only.have.keys keys
+          expect(logs[0].date).to.be.a Date
           done()

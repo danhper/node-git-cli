@@ -39,7 +39,11 @@ GitUtil =
 
   parseLog: (logStr) ->
     logStr = '[' + logStr[0...-1] + ']'
-    JSON.parse logStr
+    logs = JSON.parse logStr
+    _.each logs, (log) ->
+      log.date = new Date(Date.parse(log.date))
+    logs
+
 
 
 module.exports = GitUtil
