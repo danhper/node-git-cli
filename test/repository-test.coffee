@@ -155,3 +155,18 @@ describe 'Repository', ->
           expect(logs[0]).to.only.have.keys keys
           expect(logs[0].date).to.be.a Date
           done()
+
+  describe '#commit', ->
+    it 'should work when files are added', (done) ->
+      fs.appendFileSync("#{testRepository.workingDir()}/README.md", 'foobar')
+      testRepository.log
+        onSuccess: (logs) ->
+          logsCount = logs.length
+          testRepository.add
+            onSuccess: ->
+              testRepository.commit 'foobar',
+                onSuccess: ->
+                  testRepository.log
+                    onSuccess: (logs) ->
+                      expect(logs.length).to.be (logsCount + 1)
+                      done()

@@ -80,6 +80,13 @@ class Repository
         success logs
     Runner.execute command, @_createOptions(options)
 
+  commit: (message, options={}) ->
+    cliOpts = _.extend({m: message}, options.cli)
+    if options.autoAdd
+      cliOpts.a = ''
+    command = new CliCommand(['git', 'commit'], cliOpts)
+    Runner.execute command, @_createOptions(options)
+
   _getDiffArgs: (options) ->
     args = []
     args.push options.source if options.source?
