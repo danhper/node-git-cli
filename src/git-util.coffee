@@ -22,11 +22,11 @@ GitUtil =
 
   parseShortDiff: (diffStr) ->
     diffStr = diffStr.trim()
-    regexp = /(\d+) files changed, (?:(\d+) insertion\(\+\), )?(?:(\d+) deletion\(-\))/
+    regexp = /(\d+) files? changed(?:, (\d+) insertions?\(\+\))?(?:, (\d+) deletions?\(-\))?/
     result = regexp.exec diffStr
 
     if result?
-      stats = _.map result[1..], (v) -> parseInt(v, 10)
+      stats = _.map result[1..], (v) -> (if v then parseInt(v, 10) else 0)
     else
       stats = [0, 0, 0]
 

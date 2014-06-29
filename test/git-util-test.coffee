@@ -24,9 +24,30 @@ describe 'GitUtil', ->
           expect(changes[index][k]).to.be v
 
   describe '#parseShortDiff', ->
-    s = ' 2 files changed, 1 insertion(+), 1 deletion(-)\n'
-    stats = GitUtil.parseShortDiff(s)
-    expect(stats).to.be.a Object
-    _.each { changedFilesNumber: 2, insertions: 1, deletions: 1}, (v, k) ->
-      expect(stats).to.have.key k
-      expect(stats[k]).to.be v
+    checkStats = (s, expected) ->
+      stats = GitUtil.parseShortDiff(s)
+      expect(stats).to.be.a Object
+      _.each expected, (v, k) ->
+        expect(stats).to.have.key k
+        expect(stats[k]).to.be v
+
+
+    it 'should parse singular',  ->
+      s = ' 1 file changed, 1 insertion(+), 1 deletion(-)\n'
+      expected = { changedFilesNumber: 1, insertions: 1, deletions: 1}
+      checkStats s, expected
+
+    it 'should parse plural', ->
+      s = ' 2 files changed, 3 insertions(+), 4 deletions(-)'
+      expected = { changedFilesNumber: 2, insertions: 3, deletions: 4}
+      checkStats s, expected
+
+    it 'should work with only insertions', ->
+      s = ' 1 file changed, 3 insertions(+)'
+      expected = { changedFilesNumber: 1, insertions: 3, deletions: 0}
+      checkStats s, expected
+
+    it 'should work with only deletions', ->
+      s = ' 2 files changed, 1 deletion(-)'
+      expected = { changedFilesNumber: 2, insertions: 0, deletions: 1}
+      checkStats s, expected
