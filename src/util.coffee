@@ -15,8 +15,15 @@ Util =
       throw new TypeError("expected #{allowedTypesString} but got #{object.constructor.name}")
     true
 
-  quote: (value) ->
-    value = value.replace(/'/g, "\\'")
+  escape: (s, chars=['"', "'"], escapeChar="\\") ->
+    regexp = new RegExp("([#{chars.join('')}])", 'g')
+    s.replace regexp, "#{escapeChar}$1"
+
+  surroundSingleQuote: (s) ->
+    s.replace /'/g, "'\"'\"'"
+
+  quote: (value, escape=false) ->
+    value = value.replace(/'/g, "\\'") if escape
     "'#{value}'"
 
   quoteAll: (values) ->

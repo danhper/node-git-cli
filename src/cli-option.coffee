@@ -36,7 +36,8 @@ class CliOption
     prefix + @option
 
   _formatOptionWithArgs: ->
-    argsString = Util.quoteAll(@args).join ' '
+    args = _.map @args, ((s) -> Util.surroundSingleQuote s)
+    argsString = Util.quoteAll(args).join ' '
     if @option.length == 1
       "-#{@option} #{argsString}"
     else

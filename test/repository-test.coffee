@@ -164,7 +164,7 @@ describe 'Repository', ->
           logsCount = logs.length
           testRepository.add
             onSuccess: ->
-              testRepository.commit 'foobar',
+              testRepository.commit "foo'bar",
                 onSuccess: ->
                   testRepository.log
                     onSuccess: (logs) ->

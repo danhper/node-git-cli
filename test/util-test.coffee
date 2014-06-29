@@ -35,9 +35,20 @@ describe 'Util', ->
       expect(Util.quote('foo')).to.be "'foo'"
 
     it 'should escape string quotes', ->
-      expect(Util.quote("foo'")).to.be "'foo\\''"
-      expect(Util.quote("'foo'")).to.be "'\\'foo\\''"
+      expect(Util.quote("foo'", true)).to.be "'foo\\''"
+      expect(Util.quote("'foo'", true)).to.be "'\\'foo\\''"
 
   describe 'quoteAll', ->
     it 'should quote all elements', ->
       expect(Util.quoteAll(["foo", "bar"])).to.eql ["'foo'", "'bar'"]
+
+  describe 'escape', ->
+    it 'should escape quotes by default', ->
+      s = "abc'def'ghi\""
+      expected = "abc\\'def\\'ghi\\\""
+      expect(Util.escape(s)).to.eql expected
+
+    it 'should escape given chars', ->
+      s = "abcdefg'hi"
+      expected = "abc\\def\\g'hi"
+      expect(Util.escape(s, ['d', 'g'])).to.eql expected
