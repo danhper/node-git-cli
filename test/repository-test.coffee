@@ -1,4 +1,4 @@
-process.env['TMPDIR'] = '/tmp/node-simple-git'
+process.env['TMPDIR'] = '/tmp/node-git-cli'
 
 _      = require 'underscore'
 expect = require 'expect.js'
@@ -6,13 +6,13 @@ tmp    = require 'tmp'
 fs     = require 'fs-extra'
 
 Helpers    = require './test-helpers'
-simpleGit  = require '../src/simple-git'
+gitCli  = require '../src/git-cli'
 Repository = require '../src/repository'
 CliOption  = require '../src/cli-option'
 
-BASE_REPO_PATH = '/home/daniel/Documents/projects/node-simple-git'
+BASE_REPO_PATH = '/home/daniel/Documents/projects/node-git-cli'
 unless fs.existsSync BASE_REPO_PATH
-  BASE_REPO_PATH = 'https://github.com/tuvistavie/node-simple-git.git'
+  BASE_REPO_PATH = 'https://github.com/tuvistavie/node-git-cli.git'
 
 [baseRepository, testRepository]  = [null, null]
 
@@ -21,7 +21,7 @@ before (done) ->
     fs.removeSync(process.env['TMPDIR'])
   fs.mkdirSync(process.env['TMPDIR'])
   tmp.dir (err, path) ->
-    Repository.clone BASE_REPO_PATH, "#{path}/node-simple-git", (err, repo) ->
+    Repository.clone BASE_REPO_PATH, "#{path}/node-git-cli", (err, repo) ->
         baseRepository = repo
         done()
 
@@ -31,7 +31,7 @@ after ->
 describe 'Repository', ->
   beforeEach (done) ->
     tmp.dir (err, path) ->
-      Repository.clone baseRepository.path, "#{path}/node-simple-git", (err, repo) ->
+      Repository.clone baseRepository.path, "#{path}/node-git-cli", (err, repo) ->
           testRepository = repo
           done()
 
@@ -39,7 +39,7 @@ describe 'Repository', ->
     it 'should throw error on wrong path', ->
       fn = -> new Repository('/wrong/path')
       expect(fn).to.throwException (e) ->
-        expect(e).to.be.a simpleGit.BadRepositoryError
+        expect(e).to.be.a gitCli.BadRepositoryError
 
     it 'should set the path', ->
       path = '/path/to/.git'
@@ -60,19 +60,19 @@ describe 'Repository', ->
   describe 'clone', ->
     it 'should clone repository to given directory', (done) ->
       tmp.dir { unsafeCleanup: true }, (err, path) ->
-        Repository.clone testRepository.path, "#{path}/node-simple-git", (err, repo) ->
+        Repository.clone testRepository.path, "#{path}/node-git-cli", (err, repo) ->
           expect(err).to.be null
-          expect(repo.path).to.eql "#{path}/node-simple-git/.git"
-          Repository.clone testRepository.path, "#{path}/node-simple-git", (err, repo) ->
+          expect(repo.path).to.eql "#{path}/node-git-cli/.git"
+          Repository.clone testRepository.path, "#{path}/node-git-cli", (err, repo) ->
             expect(err).to.not.be null
             done()
 
   describe 'init', ->
     it 'should init a new repository to given directory', (done) ->
       tmp.dir { unsafeCleanup: true }, (err, path) ->
-        Repository.init "#{path}/node-simple-git", (err, repository) ->
+        Repository.init "#{path}/node-git-cli", (err, repository) ->
           expect(err).to.be null
-          expect(repository.path).to.eql "#{path}/node-simple-git/.git"
+          expect(repository.path).to.eql "#{path}/node-git-cli/.git"
           done()
 
   describe '#status', ->

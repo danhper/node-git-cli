@@ -1,14 +1,14 @@
 {
   "name": "git-cli",
-  "version": "0.2.0",
-  "description": "Simple git interface for NodeJS",
-  "main": "lib/simple-git.js",
+  "version": "0.3.0",
+  "description": "Simple CLI like git interface for NodeJS",
+  "main": "lib/git-cli.js",
   "scripts": {
     "test": "grunt test"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/tuvistavie/node-simple-git.git"
+    "url": "https://github.com/tuvistavie/node-git-cli.git"
   },
   "keywords": [
     "git"
@@ -16,9 +16,9 @@
   "author": "Daniel Perez",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/tuvistavie/node-simple-git/issues"
+    "url": "https://github.com/tuvistavie/node-git-cli/issues"
   },
-  "homepage": "https://github.com/tuvistavie/node-simple-git",
+  "homepage": "https://github.com/tuvistavie/node-git-cli",
   "devDependencies": {
     "coffee-script": "^1.7.1",
     "expect.js": "^0.3.1",

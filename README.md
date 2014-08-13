@@ -1,4 +1,4 @@
-# node-simple-git (under development) [![Build Status][travis-img]][travis-build] [![Coverage Status][coveralls]][coveralls-img]
+# node-git-cli (under development) [![Build Status][travis-img]][travis-build] [![Coverage Status][coveralls]][coveralls-img]
 
 A simple git interface for NodeJS.
 It is not intended to replace projects such as 
@@ -9,7 +9,7 @@ the git command line for simple use cases.
 Checkout out [the tests](test/repository-test.coffee) for some examples.
 
 
-[travis-build]: https://travis-ci.org/tuvistavie/node-simple-git
-[travis-img]: https://travis-ci.org/tuvistavie/node-simple-git.svg?branch=master
-[coveralls]: https://coveralls.io/repos/tuvistavie/node-simple-git/badge.png?branch=master
-[coveralls-img]: https://coveralls.io/r/tuvistavie/node-simple-git?branch=master
+[travis-build]: https://travis-ci.org/tuvistavie/node-git-cli
+[travis-img]: https://travis-ci.org/tuvistavie/node-git-cli.svg?branch=master
+[coveralls]: https://coveralls.io/repos/tuvistavie/node-git-cli/badge.png?branch=master
+[coveralls-img]: https://coveralls.io/r/tuvistavie/node-git-cli?branch=master
