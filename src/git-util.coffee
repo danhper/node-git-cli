@@ -44,6 +44,11 @@ GitUtil =
       log.date = new Date(Date.parse(log.date))
     logs
 
+  parseRemote: (remoteStr) ->
+    remoteStr = remoteStr.trim()
 
+    fetchUrl: /\s+Fetch URL: (.*?)\n/.exec(remoteStr)?[1]
+    pushUrl: /\s+Push  URL: (.*?)\n/.exec(remoteStr)?[1]
+    headBranch: /\s+HEAD branch: (.*?)\n/.exec(remoteStr)?[1]
 
 module.exports = GitUtil

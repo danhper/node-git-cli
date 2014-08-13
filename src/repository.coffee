@@ -117,6 +117,16 @@ class Repository
     command = new CliCommand(['git', 'remote', 'show'], options.cli)
     Runner.execute command, @_createOptions(options)
 
+  showRemote: (name, options, callback) ->
+    options = Util.setOptions options, callback
+    if options.callback
+      callback = options.callback
+      options.callback = (err, stdout, stderr) ->
+        remoteInfo = GitUtil.parseRemote stdout
+        callback err, remoteInfo
+    command = new CliCommand(['git', 'remote', 'show'], name, options.cli)
+    Runner.execute command, @_createOptions(options)
+
 
   workingDir: -> path.dirname @path
 

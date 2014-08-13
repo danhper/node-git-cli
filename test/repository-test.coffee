@@ -169,3 +169,13 @@ describe 'Repository', ->
         expect(err).to.be null
         expect(remotes).to.eql(['origin'])
         done()
+
+  describe '#showRemote', ->
+    it 'should get remote info', (done) ->
+      testRepository.showRemote 'origin', (err, info) ->
+        expected =
+          pushUrl: baseRepository.path
+          fetchUrl: baseRepository.path
+          headBranch: 'master'
+        expect(info).to.eql expected
+        done()

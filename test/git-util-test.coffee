@@ -51,3 +51,25 @@ describe 'GitUtil', ->
       s = ' 2 files changed, 1 deletion(-)'
       expected = { changedFilesNumber: 2, insertions: 0, deletions: 1}
       checkStats s, expected
+
+  describe '#parseRemote', ->
+    s = """
+      * remote origin
+        Fetch URL: git@github.com:tuvistavie/node-git-cli.git
+        Push  URL: git@github.com:tuvistavie/node-git-cli.git
+        HEAD branch: master
+        Remote branch:
+          master
+        Local branch configured for 'git pull':
+          master merges with remote master
+        Local ref configured for 'git push':
+          master pushes to master (up to date)
+
+        """
+    remoteInfo = GitUtil.parseRemote s
+    expected =
+      fetchUrl: 'git@github.com:tuvistavie/node-git-cli.git'
+      pushUrl:  'git@github.com:tuvistavie/node-git-cli.git'
+      headBranch: 'master'
+
+    expect(remoteInfo).to.eql expected
