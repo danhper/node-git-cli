@@ -152,10 +152,18 @@ class Repository
     command = new CliCommand(['git', 'branch'], branch, options.cli)
     Runner.execute command, @_createOptions(options)
 
-
   checkout: (branch, options, callback) ->
     options = Util.setOptions options, callback
     command = new CliCommand(['git', 'checkout'], branch, options.cli)
+    Runner.execute command, @_createOptions(options)
+
+  push: (args, options, callback) ->
+    args = [args] if _.isString(args)
+    if _.isArray(args)
+      options = Util.setOptions(options, callback)
+    else
+      [options, args] = [Util.setOptions(args, options), []]
+    command = new CliCommand(['git', 'push'], args, options.cli)
     Runner.execute command, @_createOptions(options)
 
 

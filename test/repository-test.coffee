@@ -14,16 +14,16 @@ BASE_REPO_PATH = '/home/daniel/Documents/projects/node-git-cli'
 unless fs.existsSync BASE_REPO_PATH
   BASE_REPO_PATH = 'https://github.com/tuvistavie/node-git-cli.git'
 
-[baseRepository, testRepository]  = [null, null]
+[baseRepository, testRepository]  = [null, null, null]
 
 before (done) ->
   if fs.existsSync(process.env['TMPDIR'])
     fs.removeSync(process.env['TMPDIR'])
   fs.mkdirSync(process.env['TMPDIR'])
   tmp.dir (err, path) ->
-    Repository.clone BASE_REPO_PATH, "#{path}/node-git-cli", (err, repo) ->
-        baseRepository = repo
-        done()
+    Repository.clone BASE_REPO_PATH, "#{path}/node-git-cli", { cli: { bare: true } }, (err, repo) ->
+      baseRepository = repo
+      done()
 
 after ->
   fs.removeSync(process.env['TMPDIR'])
@@ -31,7 +31,7 @@ after ->
 describe 'Repository', ->
   beforeEach (done) ->
     tmp.dir (err, path) ->
-      Repository.clone baseRepository.path, "#{path}/node-git-cli", (err, repo) ->
+      Repository.clone baseRepository.workingDir(), "#{path}/node-git-cli", (err, repo) ->
           testRepository = repo
           done()
 
@@ -175,8 +175,8 @@ describe 'Repository', ->
       testRepository.showRemote 'origin', (err, info) ->
         expect(err).to.be null
         expected =
-          pushUrl: baseRepository.path
-          fetchUrl: baseRepository.path
+          pushUrl: baseRepository.workingDir()
+          fetchUrl: baseRepository.workingDir()
           headBranch: 'master'
         expect(info).to.eql expected
         done()
@@ -225,6 +225,19 @@ describe 'Repository', ->
 
     it 'should work with -b flag', (done) ->
       testRepository.checkout 'foo', { cli: { b: true } }, (err) ->
+        expect(err).to.be null
         testRepository.currentBranch (err, branch) ->
           expect(branch).to.be 'foo'
           done()
+
+  describe '#push', ->
+    it 'should push commits', (done) ->
+      baseRepository.log (err, logs) ->
+        logsCount = logs.length
+        fs.appendFileSync("#{testRepository.workingDir()}/README.md", 'foobar')
+        testRepository.commit "foo'bar", { cli: {a: true } }, (err) ->
+          testRepository.push (err) ->
+            expect(err).to.be null
+            baseRepository.log (err, logs) ->
+              expect(logs.length).to.be logsCount + 1
+              done()
