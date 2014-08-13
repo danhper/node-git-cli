@@ -1,6 +1,6 @@
 {
   "name": "git-cli",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "Simple CLI like git interface for NodeJS",
   "main": "lib/git-cli.js",
   "scripts": {
