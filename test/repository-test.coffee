@@ -191,15 +191,26 @@ describe 'Repository', ->
   describe '#branch', ->
     it 'should list branches', (done) ->
       testRepository.branch (err, branches) ->
+        expect(err).to.be null
         expect(branches).to.eql ['master']
         done()
 
     it 'should create new branches', (done) ->
       testRepository.branch 'foo', (err, branches) ->
+        expect(err).to.be null
         testRepository.branch (err, branches) ->
           expect(branches).to.eql ['foo', 'master']
           done()
 
+    it 'should delete branches', (done) ->
+      testRepository.branch 'foo', (err, branches) ->
+        testRepository.branch (err, branches) ->
+          expect(branches).to.eql ['foo', 'master']
+          testRepository.branch 'foo', { cli: { D: true } }, (err) ->
+            expect(err).to.be null
+            testRepository.branch (err, branches) ->
+              expect(branches).to.eql ['master']
+              done()
 
   describe '#checkout', ->
     it 'should do basic branch checkout', (done) ->
