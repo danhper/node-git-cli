@@ -25,7 +25,6 @@ module.exports = (grunt) ->
         files: ['test/*.coffee']
       coverage:
         options:
-          reporter: 'spec'
           coveralls: true
       test:
         options:

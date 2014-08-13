@@ -162,3 +162,10 @@ describe 'Repository', ->
             testRepository.log (err, logs) ->
               expect(logs.length).to.be (logsCount + 1)
               done()
+
+  describe '#listRemotes', ->
+    it 'should list all remotes', (done) ->
+      testRepository.listRemotes (err, remotes) ->
+        expect(err).to.be null
+        expect(remotes).to.eql(['origin'])
+        done()

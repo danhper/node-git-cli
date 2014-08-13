@@ -107,6 +107,17 @@ class Repository
       Array.prototype.push.apply args, options.paths
     args
 
+  listRemotes: (options, callback) ->
+    options = Util.setOptions options, callback
+    if options.callback
+      callback = options.callback
+      options.callback = (err, stdout, stderr) ->
+        remotes = stdout.trim().split "\n"
+        callback err, remotes
+    command = new CliCommand(['git', 'remote', 'show'], options.cli)
+    Runner.execute command, @_createOptions(options)
+
+
   workingDir: -> path.dirname @path
 
   _createOptions: (base={}) ->
