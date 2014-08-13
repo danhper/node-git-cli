@@ -1,4 +1,4 @@
-# node-git-cli (under development) [![Build Status][travis-img]][travis-build] [![Coverage Status][coveralls]][coveralls-img]
+# node-git-cli [![Build Status][travis-img]][travis-build] [![Coverage Status][coveralls]][coveralls-img]
 
 A simple git interface for NodeJS.
 It is not intended to replace projects such as 
@@ -6,8 +6,17 @@ It is not intended to replace projects such as
 rather to provide a light weight solution close to 
 the git command line for simple use cases.
 
-Checkout out [the tests](test/repository-test.coffee) for some examples.
+## Installation
 
+Just run
+
+```
+$ npm install git-cli
+```
+
+## Usage
+
+The usage is pretty straightforward, checkout out [the tests](test/repository-test.coffee) for some examples.
 
 [travis-build]: https://travis-ci.org/tuvistavie/node-git-cli
 [travis-img]: https://travis-ci.org/tuvistavie/node-git-cli.svg?branch=master
