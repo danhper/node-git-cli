@@ -52,3 +52,21 @@ describe 'Util', ->
       s = "abcdefg'hi"
       expected = "abc\\def\\g'hi"
       expect(Util.escape(s, ['d', 'g'])).to.eql expected
+
+  describe 'setOptions', ->
+    it 'should work without options', ->
+      options = Util.setOptions (-> 1)
+      expect(options).to.be.a('object')
+      expect(options.callback).to.be.a('function')
+
+    it 'should work with options and callback', ->
+      options = Util.setOptions { force: true }, (-> 1)
+      expect(options).to.be.a('object')
+      expect(options.callback).to.be.a('function')
+      expect(options.force).to.be true
+
+    it 'should work with options and no callback', ->
+      options = Util.setOptions { force: true }
+      expect(options).to.be.a('object')
+      expect(options.callback).to.be null
+      expect(options.force).to.be true

@@ -28,7 +28,7 @@ module.exports = (grunt) ->
           coveralls: true
       test:
         options:
-          reporter: 'dot'
+          reporter: 'spec'
 
 
   grunt.loadNpmTasks 'grunt-contrib-watch'

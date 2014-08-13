@@ -30,4 +30,12 @@ Util =
     _.map values, (value) =>
       @quote value
 
+  setOptions: (options, callback) ->
+    if _.isFunction(options) && !callback?
+      options = { callback: options }
+    else
+      options ?= {}
+      options.callback = callback ? null
+    options
+
 module.exports = Util

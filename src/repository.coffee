@@ -17,70 +17,81 @@ class Repository
     unless S(@path).endsWith('.git')
       throw new errors.BadRepositoryError(BAD_PATH_MSG)
 
-  @init: (path, options={}) ->
+  @init: (path, options, callback) ->
+    options = Util.setOptions options, callback
     fs.ensureDirSync path
     command = new CliCommand('git', ['init', path], options.cli)
-    if options.onSuccess
-      success = options.onSuccess
-      options.onSuccess = ->
+    if options.callback
+      callback = options.callback
+      options.callback = (err, stdout, stderr) ->
         repository = new Repository("#{path}/.git")
-        success repository
+        callback err, repository
     Runner.execute command, options
 
-  @clone: (url, path, options={}) ->
+  @clone: (url, path, options, callback) ->
+    options = Util.setOptions options, callback
     command = new CliCommand(['git', 'clone'], [url, path], options.cli)
-    if options.onSuccess
-      success = options.onSuccess
-      options.onSuccess = ->
+    if options.callback
+      callback = options.callback
+      options.callback = (err, stdout, stderr) ->
         repository = new Repository("#{path}/.git")
-        success repository
+        callback err, repository
     Runner.execute command, options
 
-  add: (files, options) ->
-    [options, files] = [files, ['.']] unless options? && _.isArray(files)
+  add: (files, options, callback) ->
+    if _.isArray files
+      options = Util.setOptions options, callback
+    else
+      options = Util.setOptions files, options
+      files = ['.']
     args = []
     Array.prototype.push.apply(args, files)
     command = new CliCommand(['git', 'add'], args, options.cli)
     Runner.execute command, @_createOptions(options)
 
   status: (options={}) ->
+    options = Util.setOptions options, callback
     command = new CliCommand(['git', 'status'], _.extend({ s: '' }, options.cli))
-    if options.onSuccess
-      success = options.onSuccess
-      options.onSuccess = (stdout, stderr) =>
+    if options.callback
+      callback = options.callback
+      options.callback = (err, stdout, stderr) =>
         statusInfo = GitUtil.parseStatus(stdout)
         _.each(statusInfo, (f) => f.fullPath = "#{@workingDir()}/#{f.path}")
-        success statusInfo
+        callback err, statusInfo
     Runner.execute command, @_createOptions(options)
 
-  diff: (options={}) ->
+  diff: (options, callback) ->
+    options = Util.setOptions options, callback
     args = @_getDiffArgs(options)
     command = new CliCommand(['git', 'diff'], args, options.cli)
     Runner.execute command, @_createOptions(options)
 
   diffStats: (options={}) ->
+    options = Util.setOptions options, callback
     args = @_getDiffArgs(options)
     cliOpts = _.extend({ shortstat: '' }, options.cli)
     command = new CliCommand(['git', 'diff'], args, cliOpts)
-    if options.onSuccess
-      success = options.onSuccess
-      options.onSuccess = (stdout, stderr) ->
+    if options.callback
+      callback = options.callback
+      options.callback = (err, stdout, stderr) ->
         stats = GitUtil.parseShortDiff(stdout)
-        success stats
+        callback err, stats
     Runner.execute command, @_createOptions(options)
 
   log: (options={}) ->
+    options = Util.setOptions options, callback
     format = '{"author": "%an", "email": "%ae", "date": "%cd", "subject": "%s", "body": "%b", "hash": "%H"},'
     cliOpts = _.extend({ pretty: "format:#{format}" }, options.cli)
     command = new CliCommand(['git', 'log'], cliOpts)
-    if options.onSuccess
-      success = options.onSuccess
-      options.onSuccess = (stdout, stderr) ->
+    if options.callback
+      callback = options.callback
+      options.callback = (err, stdout, stderr) ->
         logs = GitUtil.parseLog stdout
-        success logs
+        callback err, logs
     Runner.execute command, @_createOptions(options)
 
-  commit: (message, options={}) ->
+  commit: (message, options, callback) ->
+    options = Util.setOptions options, callback
     cliOpts = _.extend({m: message}, options.cli)
     if options.autoAdd
       cliOpts.a = ''
