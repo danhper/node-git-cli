@@ -26,7 +26,7 @@ module.exports = (grunt) ->
       coverage:
         options:
           reporter: 'spec'
-          # coveralls: true
+          coveralls: true
       test:
         options:
           reporter: 'spec'
