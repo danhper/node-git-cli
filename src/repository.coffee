@@ -127,6 +127,37 @@ class Repository
     command = new CliCommand(['git', 'remote', 'show'], name, options.cli)
     Runner.execute command, @_createOptions(options)
 
+  currentBranch: (options, callback) ->
+    options = Util.setOptions options, callback
+    if options.callback
+      callback = options.callback
+      options.callback = (err, stdout, stderr) ->
+        branch = GitUtil.parseCurrentBranch stdout
+        callback err, branch
+    command = new CliCommand(['git', 'branch'], options.cli)
+    Runner.execute command, @_createOptions(options)
+
+  branch: (branch, options, callback) ->
+    branch = [branch] if _.isString(branch)
+    if _.isArray(branch)
+      [options, hasName] = [Util.setOptions(options, callback), true]
+    else
+      [options, hasName] = [Util.setOptions(branch, options), false]
+    branch = [] unless hasName
+    if options.callback && !hasName
+      callback = options.callback
+      options.callback = (err, stdout, stderr) ->
+        branches = GitUtil.parseBranches stdout
+        callback err, branches
+    command = new CliCommand(['git', 'branch'], branch, options.cli)
+    Runner.execute command, @_createOptions(options)
+
+
+  checkout: (branch, options, callback) ->
+    options = Util.setOptions options, callback
+    command = new CliCommand(['git', 'checkout'], branch, options.cli)
+    Runner.execute command, @_createOptions(options)
+
 
   workingDir: -> path.dirname @path
 

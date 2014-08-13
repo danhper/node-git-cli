@@ -53,23 +53,54 @@ describe 'GitUtil', ->
       checkStats s, expected
 
   describe '#parseRemote', ->
-    s = """
-      * remote origin
-        Fetch URL: git@github.com:tuvistavie/node-git-cli.git
-        Push  URL: git@github.com:tuvistavie/node-git-cli.git
-        HEAD branch: master
-        Remote branch:
+    it 'should parse remote info', ->
+      s = """
+        * remote origin
+          Fetch URL: git@github.com:tuvistavie/node-git-cli.git
+          Push  URL: git@github.com:tuvistavie/node-git-cli.git
+          HEAD branch: master
+          Remote branch:
+            master
+          Local branch configured for 'git pull':
+            master merges with remote master
+          Local ref configured for 'git push':
+            master pushes to master (up to date)
+
+          """
+      remoteInfo = GitUtil.parseRemote s
+      expected =
+        fetchUrl: 'git@github.com:tuvistavie/node-git-cli.git'
+        pushUrl:  'git@github.com:tuvistavie/node-git-cli.git'
+        headBranch: 'master'
+
+      expect(remoteInfo).to.eql expected
+
+  describe '#parseCurrentBranch', ->
+    it 'should parse current branch', ->
+      s = """
+          dev
+          facebook_share
           master
-        Local branch configured for 'git pull':
-          master merges with remote master
-        Local ref configured for 'git push':
-          master pushes to master (up to date)
+          mobile
+        * new_design
 
-        """
-    remoteInfo = GitUtil.parseRemote s
-    expected =
-      fetchUrl: 'git@github.com:tuvistavie/node-git-cli.git'
-      pushUrl:  'git@github.com:tuvistavie/node-git-cli.git'
-      headBranch: 'master'
+          """
+      currentBranch = GitUtil.parseCurrentBranch s
+      expect(currentBranch).to.be 'new_design'
 
-    expect(remoteInfo).to.eql expected
+    it 'should return undefined when no current branch', ->
+      expect(GitUtil.parseCurrentBranch('')).to.be undefined
+
+  describe '#parseBranches', ->
+    it 'should parse branch list', ->
+      s = """
+          dev
+          facebook_share
+          master
+          mobile
+        * new_design
+
+          """
+      branches = GitUtil.parseBranches s
+      expected = ['dev', 'facebook_share', 'master', 'mobile', 'new_design']
+      expect(branches).to.eql expected

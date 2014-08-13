@@ -51,4 +51,14 @@ GitUtil =
     pushUrl: /\s+Push  URL: (.*?)\n/.exec(remoteStr)?[1]
     headBranch: /\s+HEAD branch: (.*?)\n/.exec(remoteStr)?[1]
 
+  parseCurrentBranch: (branches) ->
+    branches = branches.trim().split '\n'
+    branch = _.find branches, (b) -> b[0] == '*'
+    if branch? then branch.substring(2) else undefined
+
+  parseBranches: (branches) ->
+    branches = branches.trimRight().split '\n'
+    _.map branches, (b) -> b.substring(2)
+
+
 module.exports = GitUtil

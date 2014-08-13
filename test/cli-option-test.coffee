@@ -41,3 +41,8 @@ describe 'CliOption', ->
       option = new CliOption('message', 'lorem ipsum')
       expected = "--message='lorem ipsum'"
       expect(option.toString()).to.be expected
+
+    it 'should ignore "true"', ->
+      option = new CliOption('verbose', true)
+      expected = "--verbose"
+      expect(option.toString()).to.be expected

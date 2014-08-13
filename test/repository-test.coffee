@@ -173,9 +173,47 @@ describe 'Repository', ->
   describe '#showRemote', ->
     it 'should get remote info', (done) ->
       testRepository.showRemote 'origin', (err, info) ->
+        expect(err).to.be null
         expected =
           pushUrl: baseRepository.path
           fetchUrl: baseRepository.path
           headBranch: 'master'
         expect(info).to.eql expected
         done()
+
+  describe '#currentBranch', ->
+    it 'should return current branch', (done) ->
+      testRepository.currentBranch (err, branch) ->
+        expect(err).to.be null
+        expect(branch).to.be 'master'
+        done()
+
+  describe '#branch', ->
+    it 'should list branches', (done) ->
+      testRepository.branch (err, branches) ->
+        expect(branches).to.eql ['master']
+        done()
+
+    it 'should create new branches', (done) ->
+      testRepository.branch 'foo', (err, branches) ->
+        testRepository.branch (err, branches) ->
+          expect(branches).to.eql ['foo', 'master']
+          done()
+
+
+  describe '#checkout', ->
+    it 'should do basic branch checkout', (done) ->
+      testRepository.currentBranch (err, branch) ->
+        testRepository.branch 'gh-pages', (err, branches) ->
+          expect(branch).to.be 'master'
+          testRepository.checkout 'gh-pages', (err) ->
+            expect(err).to.be null
+            testRepository.currentBranch (err, branch) ->
+              expect(branch).to.be 'gh-pages'
+              done()
+
+    it 'should work with -b flag', (done) ->
+      testRepository.checkout 'foo', { cli: { b: true } }, (err) ->
+        testRepository.currentBranch (err, branch) ->
+          expect(branch).to.be 'foo'
+          done()

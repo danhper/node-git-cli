@@ -22,9 +22,9 @@ class CliOption
       [@option, @args] = [option, args]
     Util.checkArgs @args, [Array, String, Number, Boolean]
     @args = [@args] unless _.isArray @args
-    @args = (arg.toString() for arg in @args)
+    @args = _.map @args, (a) -> if a == _.isBoolean(a) then '' else a.toString()
 
-    @hasArgs = true
+    @hasArgs = _.any @args, (a) -> a.length > 0
 
   toString: ->
     if @hasArgs
