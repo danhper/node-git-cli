@@ -6,6 +6,8 @@ It is not intended to replace projects such as
 rather to provide a light weight solution close to 
 the git command line for simple use cases.
 
+Checkout out [the tests](test/repository-test.coffee) for some examples.
+
 
 [travis-build]: https://travis-ci.org/tuvistavie/node-simple-git
 [travis-img]: https://travis-ci.org/tuvistavie/node-simple-git.svg?branch=master
