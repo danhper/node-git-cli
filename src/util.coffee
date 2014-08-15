@@ -32,10 +32,8 @@ Util =
 
   setOptions: (options, callback) ->
     if _.isFunction(options) && !callback?
-      options = { callback: options }
+      [{}, options]
     else
-      options ?= {}
-      options.callback = callback ? null
-    options
+      [options, callback ? null]
 
 module.exports = Util

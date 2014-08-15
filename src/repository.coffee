@@ -18,85 +18,85 @@ class Repository
       throw new errors.BadRepositoryError(BAD_PATH_MSG)
 
   @init: (path, options, callback) ->
-    options = Util.setOptions options, callback
+    [options, callback] = Util.setOptions options, callback
     fs.ensureDirSync path
-    command = new CliCommand('git', ['init', path], options.cli)
-    if options.callback
-      callback = options.callback
-      options.callback = (err, stdout, stderr) ->
+    command = new CliCommand('git', ['init', path], options)
+    if callback
+      done = callback
+      callback = (err, stdout, stderr) ->
         repository = new Repository("#{path}/.git")
-        callback err, repository
-    Runner.execute command, options
+        done err, repository
+    Runner.execute command, {}, callback
 
   @clone: (url, path, options, callback) ->
-    options = Util.setOptions options, callback
-    command = new CliCommand(['git', 'clone'], [url, path], options.cli)
-    if options.callback
-      callback = options.callback
-      options.callback = (err, stdout, stderr) ->
+    [options, callback] = Util.setOptions options, callback
+    command = new CliCommand(['git', 'clone'], [url, path], options)
+    if callback
+      done = callback
+      callback = (err, stdout, stderr) ->
         repository = new Repository("#{path}/.git")
-        callback err, repository
-    Runner.execute command, options
+        done err, repository
+    Runner.execute command, {}, callback
 
   add: (files, options, callback) ->
     if _.isArray files
-      options = Util.setOptions options, callback
+      [options, callback] = Util.setOptions options, callback
     else
-      options = Util.setOptions files, options
+      [options, callback] = Util.setOptions files, options
       files = ['.']
     args = []
     Array.prototype.push.apply(args, files)
-    command = new CliCommand(['git', 'add'], args, options.cli)
-    Runner.execute command, @_createOptions(options)
+    command = new CliCommand(['git', 'add'], args, options)
+    Runner.execute command, @_getOptions(), callback
 
-  status: (options={}) ->
-    options = Util.setOptions options, callback
-    command = new CliCommand(['git', 'status'], _.extend({ s: '' }, options.cli))
-    if options.callback
-      callback = options.callback
-      options.callback = (err, stdout, stderr) =>
+  status: (options, callback) ->
+    [options, callback] = Util.setOptions options, callback
+    command = new CliCommand(['git', 'status'], _.extend({ s: '' }, options))
+    if callback?
+      done = callback
+      callback = (err, stdout, stderr) =>
         statusInfo = GitUtil.parseStatus(stdout)
         _.each(statusInfo, (f) => f.fullPath = "#{@workingDir()}/#{f.path}")
-        callback err, statusInfo
-    Runner.execute command, @_createOptions(options)
+        done err, statusInfo
+    Runner.execute command, @_getOptions(), callback
 
   diff: (options, callback) ->
-    options = Util.setOptions options, callback
+    [options, callback] = Util.setOptions options, callback
     args = @_getDiffArgs(options)
-    command = new CliCommand(['git', 'diff'], args, options.cli)
-    Runner.execute command, @_createOptions(options)
+    command = new CliCommand(['git', 'diff'], args, options)
+    Runner.execute command, @_getOptions(), callback
 
-  diffStats: (options={}) ->
-    options = Util.setOptions options, callback
+  diffStats: (options, callback) ->
+    [options, callback] = Util.setOptions options, callback
     args = @_getDiffArgs(options)
-    cliOpts = _.extend({ shortstat: '' }, options.cli)
+    cliOpts = _.extend({ shortstat: '' }, options)
     command = new CliCommand(['git', 'diff'], args, cliOpts)
-    if options.callback
-      callback = options.callback
-      options.callback = (err, stdout, stderr) ->
+    if callback
+      done = callback
+      callback = (err, stdout, stderr) ->
         stats = GitUtil.parseShortDiff(stdout)
-        callback err, stats
-    Runner.execute command, @_createOptions(options)
+        done err, stats
+    Runner.execute command, @_getOptions(), callback
 
   log: (options={}) ->
-    options = Util.setOptions options, callback
+    [options, callback] = Util.setOptions options, callback
     format = '{"author": "%an", "email": "%ae", "date": "%cd", "subject": "%s", "body": "%b", "hash": "%H"},'
-    cliOpts = _.extend({ pretty: "format:#{format}" }, options.cli)
+    cliOpts = _.extend({ pretty: "format:#{format}" }, options)
     command = new CliCommand(['git', 'log'], cliOpts)
-    if options.callback
-      callback = options.callback
-      options.callback = (err, stdout, stderr) ->
+    if callback
+      done = callback
+      callback = (err, stdout, stderr) ->
         logs = GitUtil.parseLog stdout
-        callback err, logs
-    Runner.execute command, @_createOptions(options)
+        done err, logs
+    Runner.execute command, @_getOptions(), callback
 
   commit: (message, options, callback) ->
-    options = Util.setOptions options, callback
-    cliOpts = _.extend({m: message}, options.cli)
+    [options, callback] = Util.setOptions options, callback
+    cliOpts = _.extend({m: message}, options)
     if options.autoAdd
       cliOpts.a = ''
     command = new CliCommand(['git', 'commit'], cliOpts)
-    Runner.execute command, @_createOptions(options)
+    Runner.execute command, @_getOptions(), callback
 
   _getDiffArgs: (options) ->
     args = []
@@ -108,71 +108,69 @@ class Repository
     args
 
   listRemotes: (options, callback) ->
-    options = Util.setOptions options, callback
-    if options.callback
-      callback = options.callback
-      options.callback = (err, stdout, stderr) ->
+    [options, callback] = Util.setOptions options, callback
+    if callback
+      done = callback
+      callback = (err, stdout, stderr) ->
         remotes = stdout.trim().split "\n"
-        callback err, remotes
-    command = new CliCommand(['git', 'remote', 'show'], options.cli)
-    Runner.execute command, @_createOptions(options)
+        done err, remotes
+    command = new CliCommand(['git', 'remote', 'show'], options)
+    Runner.execute command, @_getOptions(), callback
 
   showRemote: (name, options, callback) ->
-    options = Util.setOptions options, callback
-    if options.callback
-      callback = options.callback
-      options.callback = (err, stdout, stderr) ->
+    [options, callback] = Util.setOptions options, callback
+    if callback?
+      done = callback
+      callback = (err, stdout, stderr) ->
         remoteInfo = GitUtil.parseRemote stdout
-        callback err, remoteInfo
-    command = new CliCommand(['git', 'remote', 'show'], name, options.cli)
-    Runner.execute command, @_createOptions(options)
+        done err, remoteInfo
+    command = new CliCommand(['git', 'remote', 'show'], name, options)
+    Runner.execute command, @_getOptions(), callback
 
   currentBranch: (options, callback) ->
-    options = Util.setOptions options, callback
-    if options.callback
-      callback = options.callback
-      options.callback = (err, stdout, stderr) ->
+    [options, callback] = Util.setOptions options, callback
+    if callback
+      done = callback
+      callback = (err, stdout, stderr) ->
         branch = GitUtil.parseCurrentBranch stdout
-        callback err, branch
-    command = new CliCommand(['git', 'branch'], options.cli)
-    Runner.execute command, @_createOptions(options)
+        done err, branch
+    command = new CliCommand(['git', 'branch'], options)
+    Runner.execute command, @_getOptions(), callback
 
   branch: (branch, options, callback) ->
     branch = [branch] if _.isString(branch)
     if _.isArray(branch)
-      [options, hasName] = [Util.setOptions(options, callback), true]
+      [[options, callback], hasName] = [Util.setOptions(options, callback), true]
     else
-      [options, hasName] = [Util.setOptions(branch, options), false]
+      [[options, callback], hasName] = [Util.setOptions(branch, options), false]
     branch = [] unless hasName
-    if options.callback && !hasName
-      callback = options.callback
-      options.callback = (err, stdout, stderr) ->
+    if callback? && !hasName
+      done = callback
+      callback = (err, stdout, stderr) ->
         branches = GitUtil.parseBranches stdout
-        callback err, branches
-    command = new CliCommand(['git', 'branch'], branch, options.cli)
-    Runner.execute command, @_createOptions(options)
+        done err, branches
+    command = new CliCommand(['git', 'branch'], branch, options)
+    Runner.execute command, @_getOptions(), callback
 
   checkout: (branch, options, callback) ->
-    options = Util.setOptions options, callback
-    command = new CliCommand(['git', 'checkout'], branch, options.cli)
-    Runner.execute command, @_createOptions(options)
+    [options, callback] = Util.setOptions options, callback
+    command = new CliCommand(['git', 'checkout'], branch, options)
+    Runner.execute command, @_getOptions(), callback
 
   push: (args, options, callback) ->
     args = [args] if _.isString(args)
     if _.isArray(args)
-      options = Util.setOptions(options, callback)
+      [options, callback] = Util.setOptions(options, callback)
     else
-      [options, args] = [Util.setOptions(args, options), []]
-    command = new CliCommand(['git', 'push'], args, options.cli)
-    Runner.execute command, @_createOptions(options)
+      [[options, callback], args] = [Util.setOptions(args, options), []]
+    command = new CliCommand(['git', 'push'], args, options)
+    Runner.execute command, @_getOptions(), callback
 
 
   workingDir: -> path.dirname @path
 
-  _createOptions: (base={}) ->
-    _.extend
-      cwd: @workingDir()
-    , base
+  _getOptions: ->
+    cwd: @workingDir()
 
 
 module.exports = Repository

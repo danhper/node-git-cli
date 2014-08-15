@@ -55,18 +55,18 @@ describe 'Util', ->
 
   describe 'setOptions', ->
     it 'should work without options', ->
-      options = Util.setOptions (-> 1)
+      [options, callback] = Util.setOptions (-> 1)
       expect(options).to.be.a('object')
-      expect(options.callback).to.be.a('function')
+      expect(callback).to.be.a('function')
 
     it 'should work with options and callback', ->
-      options = Util.setOptions { force: true }, (-> 1)
+      [options, callback] = Util.setOptions { force: true }, (-> 1)
       expect(options).to.be.a('object')
-      expect(options.callback).to.be.a('function')
+      expect(callback).to.be.a('function')
       expect(options.force).to.be true
 
     it 'should work with options and no callback', ->
-      options = Util.setOptions { force: true }
+      [options, callback] = Util.setOptions { force: true }
       expect(options).to.be.a('object')
-      expect(options.callback).to.be null
+      expect(callback).to.be null
       expect(options.force).to.be true

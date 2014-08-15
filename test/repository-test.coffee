@@ -21,7 +21,7 @@ before (done) ->
     fs.removeSync(process.env['TMPDIR'])
   fs.mkdirSync(process.env['TMPDIR'])
   tmp.dir (err, path) ->
-    Repository.clone BASE_REPO_PATH, "#{path}/node-git-cli", { cli: { bare: true } }, (err, repo) ->
+    Repository.clone BASE_REPO_PATH, "#{path}/node-git-cli", { bare: true }, (err, repo) ->
       baseRepository = repo
       done()
 
@@ -51,11 +51,10 @@ describe 'Repository', ->
       repository = new Repository('/path/to/.git')
       expect(repository.workingDir()).to.be '/path/to'
 
-  describe '#createOptions', ->
-    it 'should extend options with "cwd"', ->
+  describe '#_getOptions', ->
+    it 'should return "cwd"', ->
       repository = new Repository('/path/to/.git')
-      options = { foo: 'bar' }
-      expect(repository._createOptions(options)).to.eql { cwd: '/path/to', foo: 'bar' }
+      expect(repository._getOptions()).to.eql { cwd: '/path/to' }
 
   describe 'clone', ->
     it 'should clone repository to given directory', (done) ->
@@ -206,7 +205,7 @@ describe 'Repository', ->
       testRepository.branch 'foo', (err, branches) ->
         testRepository.branch (err, branches) ->
           expect(branches).to.eql ['foo', 'master']
-          testRepository.branch 'foo', { cli: { D: true } }, (err) ->
+          testRepository.branch 'foo', { D: true }, (err) ->
             expect(err).to.be null
             testRepository.branch (err, branches) ->
               expect(branches).to.eql ['master']
@@ -224,7 +223,7 @@ describe 'Repository', ->
               done()
 
     it 'should work with -b flag', (done) ->
-      testRepository.checkout 'foo', { cli: { b: true } }, (err) ->
+      testRepository.checkout 'foo', { b: true }, (err) ->
         expect(err).to.be null
         testRepository.currentBranch (err, branch) ->
           expect(branch).to.be 'foo'
@@ -235,7 +234,7 @@ describe 'Repository', ->
       baseRepository.log (err, logs) ->
         logsCount = logs.length
         fs.appendFileSync("#{testRepository.workingDir()}/README.md", 'foobar')
-        testRepository.commit "foo'bar", { cli: {a: true } }, (err) ->
+        testRepository.commit "foo'bar", { a: true }, (err) ->
           testRepository.push (err) ->
             expect(err).to.be null
             baseRepository.log (err, logs) ->

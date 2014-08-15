@@ -36,7 +36,6 @@ GitUtil =
       deletions: stats[2]
     }
 
-
   parseLog: (logStr) ->
     logStr = '[' + logStr[0...-1] + ']'
     logs = JSON.parse logStr.replace /\n/g, ""
