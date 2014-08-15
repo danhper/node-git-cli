@@ -39,7 +39,7 @@ GitUtil =
 
   parseLog: (logStr) ->
     logStr = '[' + logStr[0...-1] + ']'
-    logs = JSON.parse logStr
+    logs = JSON.parse logStr.replace /\n/g, ""
     _.each logs, (log) ->
       log.date = new Date(Date.parse(log.date))
     logs
