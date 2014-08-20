@@ -16,7 +16,37 @@ $ npm install git-cli
 
 ## Usage
 
-The usage is pretty straightforward, checkout out [the tests](test/repository-test.coffee) for some examples.
+The usage is pretty straightforward, here is a sample code.
+
+```coffee
+Repository = require('git-cli').Repository
+fs = require 'fs'
+
+Repository.clone 'https://github.com/tuvistavie/node-git-cli', 'git-cli', (err, repo) ->
+  repo.log (err, logs) ->
+    console.log logs[0].subject
+    repo.showRemote 'origin', (err, remote) ->
+      console.log remote.fetchUrl
+
+      fs.writeFileSync "#{repo.workingDir()}/newFile", 'foobar'
+      repo.status (err, status) ->
+        console.log status[0].path
+        console.log status[0].tracked
+
+        repo.add (err) ->
+          repo.status (err, status) ->
+            console.log status[0].path
+            console.log status[0].tracked
+
+            repo.commit 'added newFile', (err) ->
+              repo.log (err, logs) ->
+                console.log logs[0].subject
+
+              repo.push (err) ->
+                console.log 'pushed to remote'
+```
+
+Checkout out [the tests](test/repository-test.coffee) for more examples.
 
 [travis-build]: https://travis-ci.org/tuvistavie/node-git-cli
 [travis-img]: https://travis-ci.org/tuvistavie/node-git-cli.svg?branch=master
