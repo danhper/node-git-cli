@@ -37,8 +37,10 @@ GitUtil =
     }
 
   parseLog: (logStr) ->
-    logStr = '[' + logStr[0...-1] + ']'
-    logs = JSON.parse logStr.replace /\n/g, ""
+    logStr = logStr.replace /"},\n/g, '"},'  # remove linebreaks between commits
+    logStr = logStr.replace /\n/g, '\\n'     # replace linebreaks in messages
+    logStr = '[' + logStr[0...-1] + ']'      # remove last comma
+    logs = JSON.parse logStr
     _.each logs, (log) ->
       log.date = new Date(Date.parse(log.date))
     logs
