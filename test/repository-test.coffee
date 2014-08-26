@@ -6,7 +6,7 @@ tmp    = require 'tmp'
 fs     = require 'fs-extra'
 
 Helpers    = require './test-helpers'
-gitCli  = require '../src/git-cli'
+gitCli     = require '../src/git-cli'
 Repository = require '../src/repository'
 CliOption  = require '../src/cli-option'
 

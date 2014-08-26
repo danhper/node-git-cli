@@ -1,72 +1,79 @@
 expect = require 'expect.js'
 
-Util = require '../src/util'
+util = require '../src/util'
 
-describe 'Util', ->
+describe 'util', ->
   describe 'hasType', ->
     it 'should return true on same type', ->
-      expect(Util.hasType('abc', String)).to.be true
-      expect(Util.hasType(1, Number)).to.be true
-      expect(Util.hasType([], Array)).to.be true
-      expect(Util.hasType({}, Object)).to.be true
+      expect(util.hasType('abc', String)).to.be true
+      expect(util.hasType(1, Number)).to.be true
+      expect(util.hasType([], Array)).to.be true
+      expect(util.hasType({}, Object)).to.be true
 
     it 'should return false otherwie', ->
-      expect(Util.hasType('abc', Number)).to.be false
-      expect(Util.hasType([], Object)).to.be false
+      expect(util.hasType('abc', Number)).to.be false
+      expect(util.hasType([], Object)).to.be false
 
   describe 'checkArgs', ->
     it 'should return true when type matches', ->
-      expect(Util.checkArgs 'abc', String).to.be true
+      expect(util.checkArgs 'abc', String).to.be true
 
     it 'should return false when any type matches', ->
-      expect(Util.checkArgs 'abc', [Array, String]).to.be true
+      expect(util.checkArgs 'abc', [Array, String]).to.be true
 
     it 'should throw otherwise', ->
-      fn = (-> Util.checkArgs 'abc', Array)
+      fn = (-> util.checkArgs 'abc', Array)
       expect(fn).to.throwException (e) ->
         expect(e).to.be.a TypeError
 
-      fn = (-> Util.checkArgs 'abc', [Array, Object])
+      fn = (-> util.checkArgs 'abc', [Array, Object])
       expect(fn).to.throwException (e) ->
         expect(e).to.be.a TypeError
 
   describe 'quote', ->
     it 'should quote raw argument', ->
-      expect(Util.quote('foo')).to.be "'foo'"
+      expect(util.quote('foo')).to.be "'foo'"
 
     it 'should escape string quotes', ->
-      expect(Util.quote("foo'", true)).to.be "'foo\\''"
-      expect(Util.quote("'foo'", true)).to.be "'\\'foo\\''"
+      expect(util.quote("foo'", true)).to.be "'foo\\''"
+      expect(util.quote("'foo'", true)).to.be "'\\'foo\\''"
 
   describe 'quoteAll', ->
     it 'should quote all elements', ->
-      expect(Util.quoteAll(["foo", "bar"])).to.eql ["'foo'", "'bar'"]
+      expect(util.quoteAll(["foo", "bar"])).to.eql ["'foo'", "'bar'"]
 
   describe 'escape', ->
     it 'should escape quotes by default', ->
       s = "abc'def'ghi\""
       expected = "abc\\'def\\'ghi\\\""
-      expect(Util.escape(s)).to.eql expected
+      expect(util.escape(s)).to.eql expected
 
     it 'should escape given chars', ->
       s = "abcdefg'hi"
       expected = "abc\\def\\g'hi"
-      expect(Util.escape(s, ['d', 'g'])).to.eql expected
+      expect(util.escape(s, ['d', 'g'])).to.eql expected
 
   describe 'setOptions', ->
     it 'should work without options', ->
-      [options, callback] = Util.setOptions (-> 1)
+      [options, callback] = util.setOptions (-> 1)
       expect(options).to.be.a('object')
       expect(callback).to.be.a('function')
 
     it 'should work with options and callback', ->
-      [options, callback] = Util.setOptions { force: true }, (-> 1)
+      [options, callback] = util.setOptions { force: true }, (-> 1)
       expect(options).to.be.a('object')
       expect(callback).to.be.a('function')
       expect(options.force).to.be true
 
     it 'should work with options and no callback', ->
-      [options, callback] = Util.setOptions { force: true }
+      [options, callback] = util.setOptions { force: true }
       expect(options).to.be.a('object')
       expect(callback).to.be null
       expect(options.force).to.be true
+
+  describe '#wrapCallback', ->
+    it 'should process output with handler and call given callback', ->
+      callback = (err, stdout, stderr) -> stdout + "baz"
+      handler = (err, stdout, stderr) -> stdout[1..]
+      newCallback = util.wrapCallback callback, handler
+      expect(newCallback(null, "foobar")).to.be "oobarbaz"

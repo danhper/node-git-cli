@@ -1,7 +1,7 @@
 _ = require 'underscore'
 S = require 'string'
 
-Util =
+util =
   hasType: (object, type) ->
     object.constructor.name == type.name
 
@@ -9,7 +9,7 @@ Util =
     allowedTypes = [allowedTypes] unless _.isArray allowedTypes
     valid = false
     for type in allowedTypes
-      break if valid = Util.hasType object, type
+      break if valid = @hasType object, type
     unless valid
       allowedTypesString = _.map(allowedTypes, (t) -> t.name).join ', '
       throw new TypeError("expected #{allowedTypesString} but got #{object.constructor.name}")
@@ -36,4 +36,11 @@ Util =
     else
       [options, callback ? null]
 
-module.exports = Util
+  wrapCallback: (callback, handler) ->
+    return unless callback?
+    done = callback
+    (err, stdout, stderr) ->
+      args = handler err, stdout, stderr
+      done err, args
+
+module.exports = util
