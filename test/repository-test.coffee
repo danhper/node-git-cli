@@ -240,3 +240,19 @@ describe 'Repository', ->
             baseRepository.log (err, logs) ->
               expect(logs.length).to.be logsCount + 1
               done()
+
+  describe '#addRemote', ->
+    it 'should add new remote', (done) ->
+      testRepository.addRemote 'foo', baseRepository.path, (err) ->
+        expect(err).to.be null
+        testRepository.listRemotes (err, remotes) ->
+          expect(remotes).to.contain 'foo'
+          done()
+
+  describe '#setRemoteUrl', ->
+    it 'should change remote URL', (done) ->
+      testRepository.setRemoteUrl 'origin', 'newUrl', (err) ->
+        expect(err).to.be null
+        testRepository.showRemote 'origin', { n: true }, (err, remote) ->
+          expect(remote.pushUrl).to.be 'newUrl'
+          done()

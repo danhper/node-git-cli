@@ -166,6 +166,16 @@ class Repository
     command = new CliCommand(['git', 'push'], args, options)
     Runner.execute command, @_getOptions(), callback
 
+  addRemote: (name, url, options, callback) ->
+    [options, callback] = Util.setOptions options, callback
+    command = new CliCommand(['git', 'remote', 'add'], [name, url], options)
+    Runner.execute command, @_getOptions(), callback
+
+  setRemoteUrl: (name, url, options, callback) ->
+    [options, callback] = Util.setOptions options, callback
+    command = new CliCommand(['git', 'remote', 'set-url'], [name, url], options)
+    Runner.execute command, @_getOptions(), callback
+
 
   workingDir: -> path.dirname @path
 
