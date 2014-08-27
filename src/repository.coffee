@@ -141,6 +141,10 @@ class Repository
     command = new CliCommand(['git', 'remote', 'set-url'], [name, url], options)
     execute command, @_getOptions(), callback
 
+  merge: (args, options, callback) ->
+    [options, callback] = util.setOptions options, callback
+    command = new CliCommand(['git', 'merge'], args, options)
+    execute command, @_getOptions(), callback
 
   workingDir: -> path.dirname @path
 

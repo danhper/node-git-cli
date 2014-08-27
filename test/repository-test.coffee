@@ -256,3 +256,18 @@ describe 'Repository', ->
         testRepository.showRemote 'origin', { n: true }, (err, remote) ->
           expect(remote.pushUrl).to.be 'newUrl'
           done()
+
+  describe '#merge', ->
+    it 'should merge branche', (done) ->
+      file = "#{testRepository.workingDir()}/README.md"
+      fs.appendFileSync(file, 'random string')
+      testRepository.branch 'newbranch', ->
+        testRepository.add (err) ->
+          testRepository.commit "new commit", (err) ->
+            testRepository.checkout 'newbranch', ->
+              expect(fs.readFileSync(file, 'utf8')).to.not.contain 'random string'
+              testRepository.merge 'master', ->
+                expect(fs.readFileSync(file, 'utf8')).to.contain 'random string'
+                testRepository.log (err, logs) ->
+                  expect(logs[0].subject).to.be 'new commit'
+                  done()
