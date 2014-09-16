@@ -14,7 +14,7 @@ BASE_REPO_PATH = '/home/daniel/Documents/projects/node-git-cli'
 unless fs.existsSync BASE_REPO_PATH
   BASE_REPO_PATH = 'https://github.com/tuvistavie/node-git-cli.git'
 
-[baseRepository, testRepository]  = [null, null, null]
+[baseRepository, testRepository]  = [null, null]
 
 before (done) ->
   if fs.existsSync(process.env['TMPDIR'])
