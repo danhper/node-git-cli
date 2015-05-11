@@ -32,15 +32,15 @@ describe 'util', ->
 
   describe 'quote', ->
     it 'should quote raw argument', ->
-      expect(util.quote('foo')).to.be "'foo'"
+      expect(util.quote('foo')).to.be "\"foo\""
 
     it 'should escape string quotes', ->
-      expect(util.quote("foo'", true)).to.be "'foo\\''"
-      expect(util.quote("'foo'", true)).to.be "'\\'foo\\''"
+      expect(util.quote("foo\"", true)).to.be '"foo\\""'
+      expect(util.quote("\"foo\"", true)).to.be '"\\"foo\\""'
 
   describe 'quoteAll', ->
     it 'should quote all elements', ->
-      expect(util.quoteAll(["foo", "bar"])).to.eql ["'foo'", "'bar'"]
+      expect(util.quoteAll(["foo", "bar"])).to.eql ["\"foo\"", "\"bar\""]
 
   describe 'escape', ->
     it 'should escape quotes by default', ->

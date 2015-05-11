@@ -19,16 +19,13 @@ util =
     regexp = new RegExp("([#{chars.join('')}])", 'g')
     s.replace regexp, "#{escapeChar}$1"
 
-  surroundSingleQuote: (s) ->
-    s.replace /'/g, "'\"'\"'"
-
   quote: (value, escape=false) ->
-    value = value.replace(/'/g, "\\'") if escape
-    "'#{value}'"
+    value = value.replace(/"/g, "\\\"") if escape
+    "\"#{value}\""
 
-  quoteAll: (values) ->
+  quoteAll: (values, escape=false) ->
     _.map values, (value) =>
-      @quote value
+      @quote value, escape
 
   setOptions: (options, callback) ->
     if _.isFunction(options) && !callback?

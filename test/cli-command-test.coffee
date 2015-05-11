@@ -40,9 +40,9 @@ describe 'CliCommand', ->
 
     it 'should format command with options', ->
       command = new CliCommand('pacman', { S: 'abc', verbose: '' })
-      expect(command.toString()).to.be "pacman -S 'abc' --verbose"
+      expect(command.toString()).to.be "pacman -S \"abc\" --verbose"
       command = new CliCommand(['git', 'commit'], { m: 'my message', a: '' })
-      expect(command.toString()).to.be "git commit -m 'my message' -a"
+      expect(command.toString()).to.be "git commit -m \"my message\" -a"
 
     it 'should format command with arguments and options', ->
       command = new CliCommand(['git', 'diff'], ['HEAD~5', 'HEAD', '--', 'README.md'], { s: '' })
