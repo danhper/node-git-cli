@@ -34,12 +34,12 @@ describe 'CliOption', ->
 
     it 'should format short options with args', ->
       option = new CliOption('m', 'lorem ipsum')
-      expected = "-m 'lorem ipsum'"
+      expected = "-m \"lorem ipsum\""
       expect(option.toString()).to.be expected
 
     it 'should format long options with args', ->
       option = new CliOption('message', 'lorem ipsum')
-      expected = "--message='lorem ipsum'"
+      expected = "--message=\"lorem ipsum\""
       expect(option.toString()).to.be expected
 
     it 'should ignore "true"', ->
