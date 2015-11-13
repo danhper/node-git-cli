@@ -241,6 +241,24 @@ describe 'Repository', ->
               expect(logs.length).to.be logsCount + 1
               done()
 
+  describe '#pull', ->
+    it 'should pull commits', (done) ->
+      tmp.dir (err, path) ->
+        Repository.clone baseRepository.workingDir(), "#{path}/node-git-cli-other", (err, repo) ->
+          expect(err).to.be null
+          testRepository.log (err, logs) ->
+            logsCount = logs.length
+            fs.appendFileSync("#{repo.workingDir()}/README.md", 'foobarbaz')
+            repo.commit "foobarbaz", { a: true }, (err) ->
+              repo.push (err) ->
+                expect(err).to.be null
+                testRepository.pull (err) ->
+                  expect(err).to.be null
+                  testRepository.log (err, logs) ->
+                    expect(logs.length).to.be logsCount + 1
+                    done()
+
+
   describe '#addRemote', ->
     it 'should add new remote', (done) ->
       testRepository.addRemote 'foo', baseRepository.path, (err) ->
