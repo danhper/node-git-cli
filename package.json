@@ -4,7 +4,8 @@
   "description": "Simple CLI like git interface for NodeJS",
   "main": "lib/git-cli.js",
   "scripts": {
-    "test": "grunt test"
+    "test": "grunt test",
+    "prepublish": "grunt build"
   },
   "repository": {
     "type": "git",
