@@ -150,7 +150,7 @@ describe 'Repository', ->
         expect(logs[0].date).to.be.a Date
         done()
 
-    it.only 'should accept options and return logs', (done) ->
+    it 'should accept options and return logs', (done) ->
       testRepository.log { n: 1 }, (err, logs) ->
         expect(err).to.be null
         expect(logs).to.be.an Array
