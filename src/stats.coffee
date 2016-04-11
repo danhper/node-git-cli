@@ -35,7 +35,7 @@ exports.status = (options, callback) ->
     _.each(statusInfo, (f) => f.fullPath = "#{@workingDir()}/#{f.path}")
   execute command, @_getOptions(), cb
 
-exports.log = (options={}) ->
+exports.log = (options={}, callback) ->
   [options, callback] = util.setOptions options, callback
   format = '{"author": "%an", "email": "%ae", "date": "%cd", "subject": "%s", "body": "%b", "hash": "%H"},'
   cliOpts = _.extend({ pretty: "format:#{format}" }, options)

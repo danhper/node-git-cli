@@ -150,6 +150,13 @@ describe 'Repository', ->
         expect(logs[0].date).to.be.a Date
         done()
 
+    it.only 'should accept options and return logs', (done) ->
+      testRepository.log { n: 1 }, (err, logs) ->
+        expect(err).to.be null
+        expect(logs).to.be.an Array
+        expect(logs).to.have.length 1
+        done()
+
   describe '#commit', ->
     it 'should work when files are added', (done) ->
       fs.appendFileSync("#{testRepository.workingDir()}/README.md", 'foobar')
