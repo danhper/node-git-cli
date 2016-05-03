@@ -70,10 +70,3 @@ describe 'util', ->
       expect(options).to.be.a('object')
       expect(callback).to.be null
       expect(options.force).to.be true
-
-  describe '#wrapCallback', ->
-    it 'should process output with handler and call given callback', ->
-      callback = (err, stdout, stderr) -> stdout + "baz"
-      handler = (err, stdout, stderr) -> stdout[1..]
-      newCallback = util.wrapCallback callback, handler
-      expect(newCallback(null, "foobar")).to.be "oobarbaz"

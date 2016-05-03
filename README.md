@@ -46,6 +46,40 @@ Repository.clone 'https://github.com/tuvistavie/node-git-cli', 'git-cli', (err, 
                 console.log 'pushed to remote'
 ```
 
+From version 0.10, all functions still take a callback, but also return promises,
+so you can rewrite the above as follow:
+
+```javascript
+const Repository = require('git-cli').Repository
+const fs = require('fs')
+
+Repository.clone('https://github.com/tuvistavie/node-git-cli', 'git-cli')
+  .then(repo => {
+    return repo.log()
+      .then(logs => {
+        console.log(logs[0].subject)
+        return repo.showRemote('origin')
+    }).then(remote => {
+        console.log(remote.fetchUrl)
+        fs.writeFileSync("#{repo.workingDir()}/newFile", 'foobar')
+        return repo.status()
+    }).then(status => {
+        console.log(status[0].path)
+        console.log(status[0].tracked)
+        return repo.add()
+    }).then(() => repo.status())
+      .then(status => {
+        console.log status[0].path
+        console.log status[0].tracked
+        return repo.commit('added newFile')
+    }).then(() => repo.log())
+      .then(logs => {
+        console.log(logs[0].subject)
+        return repo.push()
+    }).then(() => console.log('pushed' to remote))
+  }).catch(e => console.log(e))
+```
+
 Checkout out [the tests](test/repository-test.coffee) for more examples.
 
 [travis-build]: https://travis-ci.org/tuvistavie/node-git-cli

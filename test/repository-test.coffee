@@ -16,24 +16,22 @@ unless fs.existsSync BASE_REPO_PATH
 
 [baseRepository, testRepository]  = [null, null]
 
-before (done) ->
+before () ->
   if fs.existsSync(process.env['TMPDIR'])
     fs.removeSync(process.env['TMPDIR'])
   fs.mkdirSync(process.env['TMPDIR'])
-  tmp.dir (err, path) ->
-    Repository.clone BASE_REPO_PATH, "#{path}/node-git-cli", { bare: true }, (err, repo) ->
-      baseRepository = repo
-      done()
+  path = tmp.dirSync().name
+  Repository.clone(BASE_REPO_PATH, "#{path}/node-git-cli", { bare: true })
+    .then((repo) -> baseRepository = repo)
 
 after ->
   fs.removeSync(process.env['TMPDIR'])
 
 describe 'Repository', ->
-  beforeEach (done) ->
-    tmp.dir (err, path) ->
-      Repository.clone baseRepository.workingDir(), "#{path}/node-git-cli", (err, repo) ->
-          testRepository = repo
-          done()
+  beforeEach () ->
+    path = tmp.dirSync().name
+    Repository.clone(baseRepository.workingDir(), "#{path}/node-git-cli")
+      .then((repo) -> testRepository = repo)
 
   describe 'constructor', ->
     it 'should throw error on wrong path', ->
@@ -58,241 +56,209 @@ describe 'Repository', ->
 
   describe 'clone', ->
     it 'should clone repository to given directory', (done) ->
-      tmp.dir { unsafeCleanup: true }, (err, path) ->
-        Repository.clone testRepository.path, "#{path}/node-git-cli", (err, repo) ->
-          expect(err).to.be null
+      path = tmp.dirSync({unsafeCleanup: true}).name
+      Repository.clone(testRepository.path, "#{path}/node-git-cli")
+        .then((repo) ->
           expect(repo.path).to.eql "#{path}/node-git-cli/.git"
-          Repository.clone testRepository.path, "#{path}/node-git-cli", (err, repo) ->
-            expect(err).to.not.be null
-            done()
+          Repository.clone(testRepository.path, "#{path}/node-git-cli"))
+        .then(-> done(new Error('should not be able to clone in existing dir')))
+        .catch((e) -> done())
 
   describe 'init', ->
-    it 'should init a new repository to given directory', (done) ->
-      tmp.dir { unsafeCleanup: true }, (err, path) ->
-        Repository.init "#{path}/node-git-cli", (err, repository) ->
-          expect(err).to.be null
-          expect(repository.path).to.eql "#{path}/node-git-cli/.git"
-          done()
+    it 'should init a new repository to given directory', () ->
+      path = tmp.dirSync().name
+      Repository.init("#{path}/node-git-cli")
+        .then((repo) -> expect(repo.path).to.eql "#{path}/node-git-cli/.git")
 
   describe '#status', ->
-    it 'get file status', (done) ->
+    it 'get file status', () ->
       addedFilePath = "#{testRepository.workingDir()}/foo"
       editedFilePath = "#{testRepository.workingDir()}/README.md"
       fs.openSync(addedFilePath, 'w')
       fs.appendFileSync(editedFilePath, 'foobar')
-      testRepository.status (err, changes) ->
-        expect(err).to.be null
+      testRepository.status().then (changes) ->
         expect(changes).to.be.an Array
         expect(changes.length).to.be 2
         _.each { path: 'README.md', fullPath: editedFilePath, status: 'modified', tracked: false }, (v, k) ->
           expect(changes[0][k]).to.be v
         _.each { path: 'foo', fullPath: addedFilePath, status: 'added', tracked: false }, (v, k) ->
           expect(changes[1][k]).to.be v
-        done()
 
   describe '#add', ->
-    it 'should add all files by default', (done) ->
+    it 'should add all files by default', () ->
       fs.openSync("#{testRepository.workingDir()}/foo", 'w')
       fs.appendFileSync("#{testRepository.workingDir()}/README.md", 'foobar')
-      testRepository.add (err) ->
-          expect(err).to.be null
-          testRepository.status (err, changes) ->
-              expect(changes.length).to.be 2
-              _.each changes, (change) ->
-                expect(change.tracked).to.be true
-              done()
+      testRepository.add()
+        .then(-> testRepository.status())
+        .then (changes) ->
+          expect(changes.length).to.be 2
+          _.each changes, (change) ->
+            expect(change.tracked).to.be true
 
-    it 'shoud add given files otherwise', (done) ->
+    it 'shoud add given files otherwise', () ->
       addedFilePath = "#{testRepository.workingDir()}/foo"
       fs.openSync(addedFilePath, 'w')
       fs.appendFileSync("#{testRepository.workingDir()}/README.md", 'foobar')
-      testRepository.add [addedFilePath], (err) ->
-        expect(err).to.be null
-        testRepository.status (err, changes) ->
-            expect(changes.length).to.be 2
-            expect(changes[0].tracked).to.be false
-            expect(changes[1].tracked).to.be true
-            done()
+      testRepository.add([addedFilePath])
+        .then(-> testRepository.status())
+        .then (changes) ->
+           expect(changes.length).to.be(2)
+           expect(changes[0].tracked).to.be(false)
+           expect(changes[1].tracked).to.be(true)
 
   describe '#diff', ->
-    it 'should not return output when files are not changed', (done) ->
-      testRepository.diff (err, output) ->
-        expect(err).to.be null
-        expect(output).to.be.empty()
-        done()
+    it 'should not return output when files are not changed', () ->
+      testRepository.diff().then((output) -> expect(output).to.be.empty())
 
-    it 'should return output when files are changed', (done) ->
+    it 'should return output when files are changed', () ->
       fs.appendFileSync("#{testRepository.workingDir()}/README.md", 'foobar')
-      testRepository.diff (err, output) ->
-        expect(err).to.be null
-        expect(output).to.not.be.empty()
-        done()
+      testRepository.diff().then((output) -> expect(output).to.not.be.empty())
 
   describe '#diffStats', ->
-    it 'should return correct stats', (done) ->
+    it 'should return correct stats', () ->
       fs.appendFileSync("#{testRepository.workingDir()}/README.md", 'foobar')
       Helpers.removeFirstLine("#{testRepository.workingDir()}/LICENSE")
-      testRepository.diffStats (err, stats) ->
-        expect(err).to.be null
+      testRepository.diffStats().then (stats) ->
         expect(stats).to.be.a Object
         _.each { changedFilesNumber: 2, insertions: 1, deletions: 1}, (v, k) ->
           expect(stats[k]).to.be v
-        done()
 
   describe '#log', ->
-    it 'should return logs', (done) ->
+    it 'should return logs', () ->
+      testRepository.log().then (logs) ->
+        expect(logs).to.be.an Array
+        expect(logs).to.not.be.empty()
+        keys = ['author', 'email', 'subject', 'body', 'date', 'hash']
+        expect(logs[0]).to.only.have.keys keys
+        expect(logs[0].date).to.be.a Date
+
+    it 'should accept options and return logs', () ->
+      testRepository.log({ n: 1 }).then (logs) ->
+        expect(logs).to.be.an Array
+        expect(logs).to.have.length 1
+
+  describe '#commit', ->
+    it 'should work when files are added', () ->
+      fs.appendFileSync("#{testRepository.workingDir()}/README.md", 'foobar')
+      testRepository.log().then (logs) ->
+        logsCount = logs.length
+        testRepository.add()
+          .then(-> testRepository.commit "foo'bar")
+          .then(-> testRepository.log())
+          .then((logs) -> expect(logs.length).to.be (logsCount + 1))
+
+  describe '#listRemotes', ->
+    it 'should list all remotes', () ->
+      testRepository.listRemotes().then((remotes) -> expect(remotes).to.eql(['origin']))
+
+  describe '#showRemote', ->
+    it 'should get remote info', () ->
+      testRepository.showRemote('origin').then (info) ->
+        expected =
+          pushUrl: baseRepository.workingDir()
+          fetchUrl: baseRepository.workingDir()
+          headBranch: 'master'
+        expect(info).to.eql expected
+
+  describe '#currentBranch', ->
+    it 'should return current branch', () ->
+      testRepository.currentBranch().then((branch) -> expect(branch).to.be 'master')
+
+  describe '#branch', ->
+    it 'should list branches', () ->
+      testRepository.branch().then((branches) -> expect(branches).to.eql ['master'])
+
+    it 'should create new branches', () ->
+      testRepository.branch('foo')
+        .then(-> testRepository.branch())
+        .then((branches) -> expect(branches).to.eql ['foo', 'master'])
+
+    it 'should delete branches', () ->
+      testRepository.branch('foo')
+        .then(-> testRepository.branch())
+        .then((branches) ->
+          expect(branches).to.eql ['foo', 'master']
+          testRepository.branch('foo', { D: true }))
+        .then(-> testRepository.branch())
+        .then((branches) -> expect(branches).to.eql ['master'])
+
+  describe '#checkout', ->
+    it 'should do basic branch checkout', () ->
+      testRepository.currentBranch()
+       .then((branch) ->
+          expect(branch).to.be 'master'
+          testRepository.branch('gh-pages'))
+       .then(-> testRepository.checkout 'gh-pages')
+       .then(-> testRepository.currentBranch())
+       .then((branch) -> expect(branch).to.be('gh-pages'))
+
+    it 'should work with -b flag', () ->
+      testRepository.checkout('foo', { b: true })
+        .then(-> testRepository.currentBranch())
+        .then((branch) -> expect(branch).to.be 'foo')
+
+  describe '#push', ->
+    it 'should push commits', () ->
+      fs.appendFileSync("#{testRepository.workingDir()}/README.md", 'foobar')
+      baseRepository.log()
+        .then (logs) ->
+          logsCount = logs.length
+          testRepository.commit("foo'bar", { a: true })
+            .then(-> testRepository.push())
+            .then(-> baseRepository.log())
+            .then((logs) -> expect(logs.length).to.be logsCount + 1)
+
+  describe '#pull', ->
+    it 'should pull commits', () ->
+      path = tmp.dirSync().name
+      Promise.all([
+        Repository.clone(baseRepository.workingDir(), "#{path}/node-git-cli-other"),
+        testRepository.log()
+      ]).then (result) ->
+        [repo, logs] = result
+        logsCount = logs.length
+        fs.appendFileSync("#{repo.workingDir()}/README.md", 'foobarbaz')
+        repo.commit("foobarbaz", { a: true })
+          .then(-> repo.push())
+          .then(-> testRepository.pull())
+          .then(-> testRepository.log())
+          .then((logs) -> expect(logs.length).to.be logsCount + 1)
+
+  describe '#addRemote', ->
+    it 'should add new remote', () ->
+      testRepository.addRemote('foo', baseRepository.path)
+        .then(-> testRepository.listRemotes())
+        .then((remotes) -> expect(remotes).to.contain('foo'))
+
+  describe '#setRemoteUrl', ->
+    it 'should change remote URL', () ->
+      testRepository.setRemoteUrl('origin', 'newUrl')
+        .then(-> testRepository.showRemote('origin', { n: true }))
+        .then((remote) -> expect(remote.pushUrl).to.be('newUrl'))
+
+  describe '#merge', ->
+    it 'should merge branche', () ->
+      file = "#{testRepository.workingDir()}/README.md"
+      fs.appendFileSync(file, 'random string')
+      testRepository.branch('newbranch')
+        .then(-> testRepository.add())
+        .then(-> testRepository.commit("new commit"))
+        .then(-> testRepository.checkout('newbranch'))
+        .then(->
+           expect(fs.readFileSync(file, 'utf8')).to.not.contain 'random string'
+           testRepository.merge('master'))
+        .then(->
+           expect(fs.readFileSync(file, 'utf8')).to.contain 'random string'
+           testRepository.log())
+        .then((logs) -> expect(logs[0].subject).to.be('new commit'))
+
+  describe 'usage with callbacks', ->
+    it 'should accept a callback', (done) ->
       testRepository.log (err, logs) ->
-        expect(err).to.be null
+        expect(err).to.be.null
         expect(logs).to.be.an Array
         expect(logs).to.not.be.empty()
         keys = ['author', 'email', 'subject', 'body', 'date', 'hash']
         expect(logs[0]).to.only.have.keys keys
         expect(logs[0].date).to.be.a Date
         done()
-
-    it 'should accept options and return logs', (done) ->
-      testRepository.log { n: 1 }, (err, logs) ->
-        expect(err).to.be null
-        expect(logs).to.be.an Array
-        expect(logs).to.have.length 1
-        done()
-
-  describe '#commit', ->
-    it 'should work when files are added', (done) ->
-      fs.appendFileSync("#{testRepository.workingDir()}/README.md", 'foobar')
-      testRepository.log (err, logs) ->
-        logsCount = logs.length
-        testRepository.add (err) ->
-          testRepository.commit "foo'bar", (err) ->
-            expect(err).to.be null
-            testRepository.log (err, logs) ->
-              expect(logs.length).to.be (logsCount + 1)
-              done()
-
-  describe '#listRemotes', ->
-    it 'should list all remotes', (done) ->
-      testRepository.listRemotes (err, remotes) ->
-        expect(err).to.be null
-        expect(remotes).to.eql(['origin'])
-        done()
-
-  describe '#showRemote', ->
-    it 'should get remote info', (done) ->
-      testRepository.showRemote 'origin', (err, info) ->
-        expect(err).to.be null
-        expected =
-          pushUrl: baseRepository.workingDir()
-          fetchUrl: baseRepository.workingDir()
-          headBranch: 'master'
-        expect(info).to.eql expected
-        done()
-
-  describe '#currentBranch', ->
-    it 'should return current branch', (done) ->
-      testRepository.currentBranch (err, branch) ->
-        expect(err).to.be null
-        expect(branch).to.be 'master'
-        done()
-
-  describe '#branch', ->
-    it 'should list branches', (done) ->
-      testRepository.branch (err, branches) ->
-        expect(err).to.be null
-        expect(branches).to.eql ['master']
-        done()
-
-    it 'should create new branches', (done) ->
-      testRepository.branch 'foo', (err, branches) ->
-        expect(err).to.be null
-        testRepository.branch (err, branches) ->
-          expect(branches).to.eql ['foo', 'master']
-          done()
-
-    it 'should delete branches', (done) ->
-      testRepository.branch 'foo', (err, branches) ->
-        testRepository.branch (err, branches) ->
-          expect(branches).to.eql ['foo', 'master']
-          testRepository.branch 'foo', { D: true }, (err) ->
-            expect(err).to.be null
-            testRepository.branch (err, branches) ->
-              expect(branches).to.eql ['master']
-              done()
-
-  describe '#checkout', ->
-    it 'should do basic branch checkout', (done) ->
-      testRepository.currentBranch (err, branch) ->
-        testRepository.branch 'gh-pages', (err, branches) ->
-          expect(branch).to.be 'master'
-          testRepository.checkout 'gh-pages', (err) ->
-            expect(err).to.be null
-            testRepository.currentBranch (err, branch) ->
-              expect(branch).to.be 'gh-pages'
-              done()
-
-    it 'should work with -b flag', (done) ->
-      testRepository.checkout 'foo', { b: true }, (err) ->
-        expect(err).to.be null
-        testRepository.currentBranch (err, branch) ->
-          expect(branch).to.be 'foo'
-          done()
-
-  describe '#push', ->
-    it 'should push commits', (done) ->
-      baseRepository.log (err, logs) ->
-        logsCount = logs.length
-        fs.appendFileSync("#{testRepository.workingDir()}/README.md", 'foobar')
-        testRepository.commit "foo'bar", { a: true }, (err) ->
-          testRepository.push (err) ->
-            expect(err).to.be null
-            baseRepository.log (err, logs) ->
-              expect(logs.length).to.be logsCount + 1
-              done()
-
-  describe '#pull', ->
-    it 'should pull commits', (done) ->
-      tmp.dir (err, path) ->
-        Repository.clone baseRepository.workingDir(), "#{path}/node-git-cli-other", (err, repo) ->
-          expect(err).to.be null
-          testRepository.log (err, logs) ->
-            logsCount = logs.length
-            fs.appendFileSync("#{repo.workingDir()}/README.md", 'foobarbaz')
-            repo.commit "foobarbaz", { a: true }, (err) ->
-              repo.push (err) ->
-                expect(err).to.be null
-                testRepository.pull (err) ->
-                  expect(err).to.be null
-                  testRepository.log (err, logs) ->
-                    expect(logs.length).to.be logsCount + 1
-                    done()
-
-
-  describe '#addRemote', ->
-    it 'should add new remote', (done) ->
-      testRepository.addRemote 'foo', baseRepository.path, (err) ->
-        expect(err).to.be null
-        testRepository.listRemotes (err, remotes) ->
-          expect(remotes).to.contain 'foo'
-          done()
-
-  describe '#setRemoteUrl', ->
-    it 'should change remote URL', (done) ->
-      testRepository.setRemoteUrl 'origin', 'newUrl', (err) ->
-        expect(err).to.be null
-        testRepository.showRemote 'origin', { n: true }, (err, remote) ->
-          expect(remote.pushUrl).to.be 'newUrl'
-          done()
-
-  describe '#merge', ->
-    it 'should merge branche', (done) ->
-      file = "#{testRepository.workingDir()}/README.md"
-      fs.appendFileSync(file, 'random string')
-      testRepository.branch 'newbranch', ->
-        testRepository.add (err) ->
-          testRepository.commit "new commit", (err) ->
-            testRepository.checkout 'newbranch', ->
-              expect(fs.readFileSync(file, 'utf8')).to.not.contain 'random string'
-              testRepository.merge 'master', ->
-                expect(fs.readFileSync(file, 'utf8')).to.contain 'random string'
-                testRepository.log (err, logs) ->
-                  expect(logs[0].subject).to.be 'new commit'
-                  done()

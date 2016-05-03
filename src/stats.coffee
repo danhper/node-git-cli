@@ -4,19 +4,19 @@ execute    = require('./runner').execute
 util       = require './util'
 CliCommand = require './cli-command'
 
-exports.diff = (options, callback) ->
+exports.diff = (options={}, callback) ->
   [options, callback] = util.setOptions options, callback
   args = @_getDiffArgs(options)
   command = new CliCommand(['git', 'diff'], args, options)
   execute command, @_getOptions(), callback
 
-exports.diffStats = (options, callback) ->
+exports.diffStats = (options={}, callback) ->
   [options, callback] = util.setOptions options, callback
   args = @_getDiffArgs(options)
   cliOpts = _.extend({ shortstat: '' }, options)
   command = new CliCommand(['git', 'diff'], args, cliOpts)
-  cb = util.wrapCallback callback, (err, stdout) -> gitUtil.parseShortDiff(stdout)
-  execute command, @_getOptions(), cb
+  execOptions = processResult: (err, stdout) -> gitUtil.parseShortDiff(stdout)
+  execute command, @_getOptions(execOptions), callback
 
 exports._getDiffArgs = (options) ->
   args = []
@@ -30,15 +30,16 @@ exports._getDiffArgs = (options) ->
 exports.status = (options, callback) ->
   [options, callback] = util.setOptions options, callback
   command = new CliCommand(['git', 'status'], _.extend({ s: '' }, options))
-  cb = util.wrapCallback callback, (err, stdout) =>
-    statusInfo = gitUtil.parseStatus(stdout)
-    _.each(statusInfo, (f) => f.fullPath = "#{@workingDir()}/#{f.path}")
-  execute command, @_getOptions(), cb
+  execOptions =
+    processResult: (err, stdout) =>
+      statusInfo = gitUtil.parseStatus(stdout)
+      _.each(statusInfo, (f) => f.fullPath = "#{@workingDir()}/#{f.path}")
+  execute command, @_getOptions(execOptions), callback
 
 exports.log = (options={}, callback) ->
   [options, callback] = util.setOptions options, callback
   format = '{"author": "%an", "email": "%ae", "date": "%cd", "subject": "%s", "body": "%b", "hash": "%H"},'
   cliOpts = _.extend({ pretty: "format:#{format}" }, options)
   command = new CliCommand(['git', 'log'], cliOpts)
-  cb = util.wrapCallback callback, (err, stdout) -> gitUtil.parseLog(stdout)
-  execute command, @_getOptions(), cb
+  execOptions = processResult: (err, stdout) -> gitUtil.parseLog(stdout)
+  execute command, @_getOptions(execOptions), callback

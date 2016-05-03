@@ -6,9 +6,9 @@ execute    = require('./runner').execute
 
 exports.currentBranch = (options, callback) ->
   [options, callback] = util.setOptions options, callback
-  cb = util.wrapCallback callback, (err, stdout) -> gitUtil.parseCurrentBranch stdout
   command = new CliCommand(['git', 'branch'], options)
-  execute command, @_getOptions(), cb
+  execOptions = processResult: (err, stdout) -> gitUtil.parseCurrentBranch stdout
+  execute command, @_getOptions(execOptions), callback
 
 exports.branch = (branch, options, callback) ->
   branch = [branch] if _.isString(branch)
@@ -17,6 +17,6 @@ exports.branch = (branch, options, callback) ->
   else
     [[options, callback], hasName] = [util.setOptions(branch, options), false]
   branch = [] unless hasName
-  cb = util.wrapCallback callback, (err, stdout) -> gitUtil.parseBranches stdout unless hasName
   command = new CliCommand(['git', 'branch'], branch, options)
-  execute command, @_getOptions(), cb
+  execOptions = processResult: (err, stdout) -> gitUtil.parseBranches stdout unless hasName
+  execute command, @_getOptions(execOptions), callback
