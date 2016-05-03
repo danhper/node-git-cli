@@ -1,6 +1,6 @@
 {
   "name": "git-cli",
-  "version": "0.9.1",
+  "version": "0.10.0",
   "description": "Simple CLI like git interface for NodeJS",
   "main": "lib/git-cli.js",
   "scripts": {
@@ -27,9 +27,9 @@
     "grunt-contrib-coffee": "^0.10.1",
     "grunt-contrib-watch": "^0.6.1",
     "grunt-exec": "^0.4.5",
-    "grunt-mocha-cov": "^0.2.1",
-    "mocha": "^1.20.0",
-    "tmp": "0.0.23"
+    "grunt-mocha-cov": "^0.4.0",
+    "mocha": "^2.4.5",
+    "tmp": "0.0.28"
   },
   "dependencies": {
     "string": "^1.8.1",

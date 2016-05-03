@@ -5,15 +5,15 @@ execute     = require('./runner').execute
 
 exports.listRemotes = (options, callback) ->
   [options, callback] = util.setOptions options, callback
-  cb = util.wrapCallback callback, (err, stdout) -> stdout.trim().split "\n"
   command = new CliCommand(['git', 'remote', 'show'], options)
-  execute command, @_getOptions(), cb
+  execOptions = processResult: (err, stdout) -> stdout.trim().split "\n"
+  execute command, @_getOptions(execOptions), callback
 
 exports.showRemote = (name, options, callback) ->
   [options, callback] = util.setOptions options, callback
-  cb = util.wrapCallback callback, (err, stdout) -> gitUtil.parseRemote stdout
   command = new CliCommand(['git', 'remote', 'show'], name, options)
-  execute command, @_getOptions(), cb
+  execOptions = processResult: (err, stdout) -> gitUtil.parseRemote stdout
+  execute command, @_getOptions(execOptions), callback
 
 exports.addRemote = (name, url, options, callback) ->
   [options, callback] = util.setOptions options, callback

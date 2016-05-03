@@ -33,11 +33,4 @@ util =
     else
       [options, callback ? null]
 
-  wrapCallback: (callback, handler) ->
-    return unless callback?
-    done = callback
-    (err, stdout, stderr) ->
-      args = handler err, stdout, stderr
-      done err, args
-
 module.exports = util

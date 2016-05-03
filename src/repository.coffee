@@ -18,8 +18,8 @@ class Repository
 
   workingDir: -> path.dirname @path
 
-  _getOptions: ->
-    cwd: @workingDir()
+  _getOptions: (extra={}) ->
+    _.assign({cwd: @workingDir()}, extra)
 
 _.each require('./repo-class-methods'), (method, key) ->
   Repository[key] = method
