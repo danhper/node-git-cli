@@ -1,5 +1,4 @@
 _ = require 'underscore'
-S = require 'string'
 
 util =
   hasType: (object, type) ->
