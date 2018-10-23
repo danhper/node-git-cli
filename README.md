@@ -22,7 +22,7 @@ The usage is pretty straightforward, here is a sample code.
 Repository = require('git-cli').Repository
 fs = require 'fs'
 
-Repository.clone 'https://github.com/tuvistavie/node-git-cli', 'git-cli', (err, repo) ->
+Repository.clone 'https://github.com/danhper/node-git-cli.git', 'git-cli', (err, repo) ->
   repo.log (err, logs) ->
     console.log logs[0].subject
     repo.showRemote 'origin', (err, remote) ->
@@ -53,7 +53,7 @@ so you can rewrite the above as follow:
 const Repository = require('git-cli').Repository
 const fs = require('fs')
 
-Repository.clone('https://github.com/tuvistavie/node-git-cli', 'git-cli')
+Repository.clone('https://github.com/danhper/node-git-cli.git', 'git-cli')
   .then(repo => {
     return repo.log()
       .then(logs => {
@@ -82,7 +82,7 @@ Repository.clone('https://github.com/tuvistavie/node-git-cli', 'git-cli')
 
 Checkout out [the tests](test/repository-test.coffee) for more examples.
 
-[travis-build]: https://travis-ci.org/tuvistavie/node-git-cli
-[travis-img]: https://travis-ci.org/tuvistavie/node-git-cli.svg?branch=master
-[coveralls]: https://coveralls.io/repos/tuvistavie/node-git-cli/badge.png?branch=master
-[coveralls-img]: https://coveralls.io/r/tuvistavie/node-git-cli?branch=master
+[travis-build]: https://travis-ci.org/danhper/node-git-cli
+[travis-img]: https://travis-ci.org/danhper/node-git-cli.svg?branch=master
+[coveralls]: https://coveralls.io/repos/danhper/node-git-cli/badge.png?branch=master
+[coveralls-img]: https://coveralls.io/r/danhper/node-git-cli?branch=master
